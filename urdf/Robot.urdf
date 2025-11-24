@@ -53,4 +53,14 @@
         </visual>
     </link>
     
+    <link name="caster_wheel">
+        <visual>
+            <geometry>
+                <sphere radius="0.05" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="white" />
+        </visual>
+    </link>
+    
 </robot>
