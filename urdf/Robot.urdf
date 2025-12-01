@@ -70,22 +70,12 @@
     </link>
 
     <!-- SCOOP OR GRIPPING LINK-->
-    <!-- Center blade -->
-    <link name="scoop_center">
-        <visual>
-            <geometry>
-                <box size="0.40 0.04 0.14"/>
-                <origin xyz="0 0 0" rpy="0 0 0"/>
-            </geometry>
-            <material name="white"/>
-        </visual>
-    </link>
 
     <!-- Left wing -->  
     <link name="scoop_left_wing">
         <visual>
             <geometry>
-                <box size="0.25 0.04 0.14"/>
+                <box size="0.1 0.04 0.14"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
                 <material name="white"/>
@@ -96,7 +86,7 @@
     <link name="scoop_right_wing">
         <visual>
             <geometry>
-                <box size="0.25 0.04 0.14"/>
+                <box size="0.1 0.04 0.14"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
@@ -140,12 +130,18 @@
     </joint>
      
      <!-- SCOOP OR GRIPPING JOINT-->
-    <joint name="base_bulldozer_scoop" type="revolute">
+
+    <joint name="scoop_left_wing_joint" type="fixed">
         <parent link="base_link"/>
-        <child link="bulldozer_scoop"/>
-        <origin xyz="0.35 0 0.075" rpy="0.3 0 0"/>
-        <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
-        <axis xyz="0 1 0"/>
+        <child link="scoop_left_wing"/>
+        <origin xyz="0.30 0.18 0.08" rpy="0.25 0 0.0"/> <!-- yaw + tilt -->
     </joint>
+
+    <joint name="scoop_right_wing_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="scoop_right_wing"/>
+        <origin xyz="0.30 -0.18 0.08" rpy="0.25 0 0"/>
+    </joint>
+
 
 </robot>
