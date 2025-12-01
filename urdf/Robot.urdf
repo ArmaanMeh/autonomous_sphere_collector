@@ -70,15 +70,39 @@
     </link>
 
     <!-- SCOOP OR GRIPPING LINK-->
-    <link name="push_plate">
+    <!-- Center blade -->
+    <link name="scoop_center">
         <visual>
             <geometry>
-                <box size="0.3 0.5 0.01"/>
+                <box size="0.40 0.04 0.14"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
             <material name="white"/>
         </visual>
     </link>
+
+    <!-- Left wing -->  
+    <link name="scoop_left_wing">
+        <visual>
+            <geometry>
+                <box size="0.25 0.04 0.14"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+                <material name="white"/>
+        </visual>
+    </link>
+
+    <!-- Right wing -->
+    <link name="scoop_right_wing">
+        <visual>
+            <geometry>
+                <box size="0.25 0.04 0.14"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
 
     <!-- BASE JOINTS-->
     <joint name="footprint_base_joint" type="fixed">
@@ -97,14 +121,14 @@
     <joint name="base_left_wheel" type="continuous">
         <parent link="base_link"/>
         <child link="left_wheel"/>
-        <origin xyz="-0.15 0.225 0.1" rpy="0 0 0"/>
+        <origin xyz="-0.15 0.225 0" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
     <joint name="base_right_wheel" type="continuous">
         <parent link="base_link"/>
         <child link="right_wheel"/>
-        <origin xyz="-0.15 -0.225 0.1" rpy="0 0 0"/>
+        <origin xyz="-0.15 -0.225 0" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
     </joint>
 
@@ -116,10 +140,10 @@
     </joint>
      
      <!-- SCOOP OR GRIPPING JOINT-->
-    <joint name="base_push_plate" type="revolute">
+    <joint name="base_bulldozer_scoop" type="revolute">
         <parent link="base_link"/>
-        <child link="push_plate"/>
-        <origin xyz="0.3 0 0.1" rpy="0 0 0"/>
+        <child link="bulldozer_scoop"/>
+        <origin xyz="0.35 0 0.075" rpy="0.3 0 0"/>
         <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
         <axis xyz="0 1 0"/>
     </joint>
