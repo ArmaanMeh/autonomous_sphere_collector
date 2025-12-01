@@ -75,7 +75,7 @@
     <link name="scoop_left_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.04 0.14"/>
+                <box size="0.1 0.04 0.1"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
                 <material name="white"/>
@@ -86,7 +86,7 @@
     <link name="scoop_right_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.04 0.14"/>
+                <box size="0.1 0.04 0.1"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
@@ -126,21 +126,24 @@
         <parent link="base_link"/>
         <child link="caster_wheel"/>
         <origin xyz="0.2 0 -0.05" rpy="0 0 0"/>
-        <axis xyz="0 1 0"/>
     </joint>
      
      <!-- SCOOP OR GRIPPING JOINT-->
 
-    <joint name="scoop_left_wing_joint" type="fixed">
+    <joint name="scoop_left_wing_joint" type="revolute">
         <parent link="base_link"/>
         <child link="scoop_left_wing"/>
-        <origin xyz="0.30 0.18 0.08" rpy="0.25 0 0.0"/> <!-- yaw + tilt -->
+        <origin xyz="0.30 0.18 0.08" rpy="0 0 0.0"/> <!-- yaw + tilt -->
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10.0" velocity="1.0"/>
     </joint>
 
-    <joint name="scoop_right_wing_joint" type="fixed">
+    <joint name="scoop_right_wing_joint" type="revolute">
         <parent link="base_link"/>
         <child link="scoop_right_wing"/>
-        <origin xyz="0.30 -0.18 0.08" rpy="0.25 0 0"/>
+        <origin xyz="0.30 -0.18 0.08" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10.0" velocity="1.0"/>
     </joint>
 
 
