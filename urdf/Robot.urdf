@@ -13,8 +13,10 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-    <!-- Virtual footprint link -->
+    <!-- DUMMY LINK AS A FRAME -->
     <link name="base_footprint"/>
+    <link name="bucket"/>
+
 
     <!-- BASE LINK-->
     <link name="base_link">
@@ -75,7 +77,7 @@
     <link name="scoop_left_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.055 0.05"/>
+                <box size="0.1 0.040 0.05"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
                 <material name="white"/>
@@ -86,7 +88,7 @@
     <link name="scoop_right_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.055 0.05"/>
+                <box size="0.1 0.040 0.05"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
@@ -118,7 +120,7 @@
     <link name="bucket_left_wall">
         <visual>
             <geometry>
-                <box size="0.1 0.01 0.15"/>
+                <box size="0.1 0.006 0.15"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
@@ -128,7 +130,7 @@
     <link name="bucket_right_wall">
         <visual>
             <geometry>
-                <box size="0.1 0.01 0.15"/>
+                <box size="0.1 0.006 0.15"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
@@ -148,25 +150,25 @@
 
     <!-- Bucket joints-->
     <joint name="bucket_bottom_joint" type="fixed">
-        <parent link="base_link"/>
+        <parent link="bucket"/>
         <child link="bucket_bottom"/>
         <origin xyz="0.38 0 0.01" rpy="0 0 0"/>
     </joint>
 
     <joint name="bucket_back_wall_joint" type="fixed">
-        <parent link="base_link"/>
+        <parent link="bucket"/>
         <child link="bucket_back_wall"/>
         <origin xyz="0.325 0 0.08" rpy="0 0 0"/>
     </joint>
 
     <joint name="bucket_left_wall_joint" type="fixed">
-        <parent link="base_link"/>
+        <parent link="bucket"/>
         <child link="bucket_left_wall"/>
         <origin xyz="0.38 0.15 0.08" rpy="0 0 0"/>
     </joint>
 
     <joint name="bucket_right_wall_joint" type="fixed">
-        <parent link="base_link"/>
+        <parent link="bucket"/>
         <child link="bucket_right_wall"/>
         <origin xyz="0.38 -0.15 0.08" rpy="0 0 0"/>
     </joint>
@@ -214,21 +216,28 @@
      
      <!-- SCOOP OR GRIPPING JOINT-->
 
-    <joint name="scoop_left_wing_joint" type="revolute">
-        <parent link="base_link"/>
-        <child link="scoop_left_wing"/>
-        <origin xyz="0.30 0.18 0.08" rpy="0 0 0.0"/> <!-- yaw + tilt -->
-        <axis xyz="0 1 0"/>
-        <limit lower="-1.57" upper="1.57" effort="10.0" velocity="1.0"/>
+    <joint name="bucket_revolute_joint" type="fixed">
+        <parent link="scoop_left_wing"/>
+        <child link="bucket"/>
+        <origin xyz="-0.3 -0.18 -0.015" rpy="0 0 0.0"/> <!-- yaw + tilt -->
+        
     </joint>
 
     <joint name="scoop_right_wing_joint" type="revolute">
         <parent link="base_link"/>
         <child link="scoop_right_wing"/>
-        <origin xyz="0.30 -0.18 0.08" rpy="0 0 0"/>
+        <origin xyz="0.30 -0.18 0.05" rpy="0 0 0"/>
         <axis xyz="0 1 0"/>
         <limit lower="-1.57" upper="1.57" effort="10.0" velocity="1.0"/>
     </joint>
 
+    <joint name="scoop_left_wing_joint" type="revolute">
+        <parent link="base_link"/>
+        <child link="scoop_left_wing"/>
+        <origin xyz="0.30 0.18 0.05" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="10.0" velocity="1.0"/>
+    </joint>
 
+    
 </robot>
