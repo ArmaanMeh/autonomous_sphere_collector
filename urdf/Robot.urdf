@@ -93,28 +93,57 @@
         </visual>
     </link>
 
-    <!-- Middle wing bucket-->
-    <link name="bucket">
+    <!-- Bucket-->
+    
+    <link name="bucket_bottom">
         <visual>
             <geometry>
-                <box size="0.1 0.2 0.15"/>
-                <origin xyz="0 0 0" rpy="0 0 0"/> 
+                <box size="0.1 0.3 0.01"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <link name="bucket_back_wall">
+        <visual>
+            <geometry>
+                <box size="0.01 0.3 0.15"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <link name="bucket_left_wall">
+        <visual>
+            <geometry>
+                <box size="0.1 0.01 0.15"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
         </visual>
     </link>
 
     <!-- bucket joints-->
-    <joint name="left_bucket_joint" type="fixed">
-        <parent link="scoop_left_wing"/>
-        <child link="bucket"/>
-        <origin xyz="0.05 -0.1 0.0" rpy="0 0 0"/> <!-- adjust Y offset to match arm spacing -->
+   
+
+    <joint name="bucket_bottom_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="bucket_bottom"/>
+        <origin xyz="0.38 0 0.01" rpy="0 0 0"/>
     </joint>
 
-    <joint name="right_bucket_joint" type="fixed">
-        <parent link="scoop_right_wing"/>
-        <child link="bucket"/>
-        <origin xyz="0.2 0.1 0.1" rpy="0 0 0"/>
+    <joint name="bucket_back_wall_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="bucket_back_wall"/>
+        <origin xyz="0.325 0 0.08" rpy="0 0 0"/>
+    </joint>
+
+    <joint name="bucket_left_wall_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="bucket_left_wall"/>
+        <origin xyz="0.38 0.15 0.08" rpy="0 0 0"/>
     </joint>
 
     <!-- BASE JOINTS-->
