@@ -69,13 +69,13 @@
         </visual>
     </link>
 
-    <!-- SCOOP OR GRIPPING LINK-->
+    <!-- WING LINKS-->
 
     <!-- Left wing -->  
     <link name="scoop_left_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.04 0.1"/>
+                <box size="0.1 0.055 0.05"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
                 <material name="white"/>
@@ -86,15 +86,14 @@
     <link name="scoop_right_wing">
         <visual>
             <geometry>
-                <box size="0.1 0.04 0.1"/>
+                <box size="0.1 0.055 0.05"/>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
             </geometry>
             <material name="white"/>
         </visual>
     </link>
 
-    <!-- Bucket-->
-    
+    <!-- Bucket walls-->
     <link name="bucket_bottom">
         <visual>
             <geometry>
@@ -115,6 +114,7 @@
         </visual>
     </link>
 
+
     <link name="bucket_left_wall">
         <visual>
             <geometry>
@@ -125,9 +125,28 @@
         </visual>
     </link>
 
-    <!-- bucket joints-->
-   
+    <link name="bucket_right_wall">
+        <visual>
+            <geometry>
+                <box size="0.1 0.01 0.15"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
 
+    <!--BUCKET LIP-->
+    <link name="bucket_front_lip">
+        <visual>
+            <geometry>
+                <box size="0.02 0.3 0.005"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <!-- Bucket joints-->
     <joint name="bucket_bottom_joint" type="fixed">
         <parent link="base_link"/>
         <child link="bucket_bottom"/>
@@ -145,6 +164,19 @@
         <child link="bucket_left_wall"/>
         <origin xyz="0.38 0.15 0.08" rpy="0 0 0"/>
     </joint>
+
+    <joint name="bucket_right_wall_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="bucket_right_wall"/>
+        <origin xyz="0.38 -0.15 0.08" rpy="0 0 0"/>
+    </joint>
+
+    <joint name="bucket_front_lip_joint" type="fixed">
+        <parent link="bucket_bottom"/>
+        <child link="bucket_front_lip"/>
+        <origin xyz="0.059 0.0 0" rpy="0 0.28 0"/>
+    </joint>
+
 
     <!-- BASE JOINTS-->
     <joint name="footprint_base_joint" type="fixed">
