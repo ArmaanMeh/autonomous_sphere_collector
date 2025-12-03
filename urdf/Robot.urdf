@@ -121,6 +121,27 @@
         </inertial>
     </link>
 
+    <!--IMU LINK-->
+    <link name="imu_link">
+        <visual>
+            <geometry>
+                <box size="0.08 0.04 0.01"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <material name="grey"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.08 0.04 0.01"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.05"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.00002" iyy="0.00002" izz="0.00002" ixy="0.0" ixz="0.0" iyz="0.0"/>
+        </inertial>
+    </link>
 
     <!-- WHEELS LINK-->
     <link name="left_wheel">
@@ -437,6 +458,13 @@
         <parent link="base_link"/>   
         <child link="camera_link"/>
         <origin xyz="0.30 0.0 0.215" rpy="0 0.20 0"/> 
+    </joint>
+
+    <!--IMU JOINT-->
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="0.28 0.0 0.220" rpy="0 0 0"/>
     </joint>
 
 </robot>
