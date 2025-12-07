@@ -535,4 +535,25 @@
         xyz="0.12 0.0 0.201" 
         rpy="0 0 0"/>
 
+    <!-- Gazebo Diff Drive Plugin -->
+    <gazebo>
+        <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+            <ros>
+                <namespace>/</namespace>
+                <remapping>cmd_vel:=cmd_vel</remapping>
+                <remapping>odom:=odom</remapping>
+            </ros>
+            <update_rate>50</update_rate>
+            <left_joint>base_left_wheel</left_joint>
+            <right_joint>base_right_wheel</right_joint>
+            <wheel_separation>0.45</wheel_separation>   
+            <wheel_diameter>0.2</wheel_diameter>        
+            <torque>5.0</torque>
+            <command_timeout>1.0</command_timeout>
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+            <publish_tf>true</publish_tf>
+            <publish_odometry>true</publish_odometry>
+        </plugin>
+    </gazebo>
 </robot>
