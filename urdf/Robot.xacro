@@ -165,8 +165,9 @@
     <xacro:cylinder_link 
     name="lidar" 
     radius="0.1" length="0.05" 
-    origin_xyz="0 0 0" origin_rpy="0 0 0" 
-    material="white"/>
+    origin_xyz="0 0 0" origin_rpy="0 0 0"
+    mass="0.1" material="white"
+    ixx="0.0001" iyy="0.0001" izz="0.0001"/>
 
     <!-- Camera -->
     <xacro:box_link 
