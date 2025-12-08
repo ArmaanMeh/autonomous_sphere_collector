@@ -1,0 +1,594 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="autonomous_sphere_collector">
+
+    <ros2_control name="DiffDriveSystem" type="system">
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+        <!-- Left wheel joint -->
+        <joint name="base_left_wheel_joint">
+            <command_interfaces>
+                <command_interface name="velocity"/>
+            </command_interfaces>
+            <state_interfaces>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </state_interfaces>
+        </joint>
+        <!-- Right wheel joint -->
+        <joint name="base_right_wheel_joint">
+            <command_interfaces>
+                <command_interface name="velocity"/>
+            </command_interfaces>
+            <state_interfaces>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </state_interfaces>
+        </joint>
+        <!-- Left wing joint -->
+        <joint name="scoop_left_wing_joint">
+            <command_interfaces>
+                <command_interface name="position"/>
+            </command_interfaces>
+            <state_interfaces>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </state_interfaces>
+        </joint>
+    </ros2_control>
+
+
+    <!--  MATERIALS MACRO  -->
+    <xacro:macro name="define_materials">
+    <material name="grey">
+        <color rgba="0.7 0.7 0.7 1"/>
+    </material>
+
+    <material name="green">
+        <color rgba="0 0.6 0 1"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+    <!-- GAZEBO SENSOR MACROS -->
+
+    <!-- Lidar plugin macro -->
+    <xacro:macro name="gazebo_lidar_plugin" params="reference name update_rate samples resolution min_angle max_angle min_range max_range range_res">
+        <gazebo reference="${reference}">
+            <sensor name="${name}" type="lidar">
+                <update_rate>${update_rate}</update_rate>
+                <lidar>
+                    <horizontal>
+                        <samples>${samples}</samples>
+                        <resolution>${resolution}</resolution>
+                        <min_angle>${min_angle}</min_angle>
+                        <max_angle>${max_angle}</max_angle>
+                    </horizontal>
+                    <range>
+                        <min>${min_range}</min>
+                        <max>${max_range}</max>
+                        <resolution>${range_res}</resolution>
+                    </range>
+                </lidar>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Camera plugin macro -->
+    <xacro:macro name="gazebo_camera_plugin" params="reference name update_rate fov width height format near far">
+        <gazebo reference="${reference}">
+            <sensor name="${name}" type="camera">
+                <update_rate>${update_rate}</update_rate>
+                <camera>
+                    <horizontal_fov>${fov}</horizontal_fov>
+                    <image>
+                        <width>${width}</width>
+                        <height>${height}</height>
+                        <format>${format}</format>
+                    </image>
+                    <clip>
+                        <near>${near}</near>
+                        <far>${far}</far>
+                    </clip>
+                </camera>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- IMU plugin macro -->
+    <xacro:macro name="gazebo_imu_plugin" params="reference name update_rate">
+        <gazebo reference="${reference}">
+            <sensor name="${name}" type="imu">
+                <update_rate>${update_rate}</update_rate>
+                <imu>
+                    <angular_velocity/>
+                    <linear_acceleration/>
+                </imu>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- ==================== GAZEBO SENSOR CALLS ==================== -->
+
+    <!-- Lidar -->
+    <xacro:gazebo_lidar_plugin 
+        reference="lidar" 
+        name="lidar_sensor" 
+        update_rate="30" 
+        samples="720" resolution="1" 
+        min_angle="-3.14" max_angle="3.14" 
+        min_range="0.1" max_range="30.0" 
+        range_res="0.01"/>
+
+    <!-- Camera -->
+    <xacro:gazebo_camera_plugin 
+        reference="camera_link" 
+        name="camera_sensor" 
+        update_rate="30" 
+        fov="1.57" 
+        width="640" height="480" 
+        format="R8G8B8" 
+        near="0.1" far="50.0"/>
+
+    <!-- IMU -->
+    <xacro:gazebo_imu_plugin 
+        reference="imu_link" 
+        name="imu_sensor" 
+        update_rate="100"/>
+
+    </xacro:macro>
+
+    <!-- MATERIALS CALL -->
+    <xacro:define_materials/>
+
+
+    <!-- DUMMY LINK AS A FRAME -->
+    <link name="base_footprint"/>
+    <link name="bucket"/>
+
+    <!--  LINK MACROS  -->
+    <xacro:macro name="box_link" params="name size_x size_y size_z origin_xyz origin_rpy mass material ixx:=0 iyy:=0 izz:=0 ixy:=0 ixz:=0 iyz:=0">
+        <link name="${name}">
+            <visual>
+                <geometry><box size="${size_x} ${size_y} ${size_z}"/></geometry>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+                <material name="${material}"/>
+            </visual>
+            <collision>
+                <geometry><box size="${size_x} ${size_y} ${size_z}"/></geometry>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+            </collision>
+            <inertial>
+                <mass value="${mass}"/>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+                <inertia ixx="${ixx}" iyy="${iyy}" izz="${izz}" ixy="${ixy}" ixz="${ixz}" iyz="${iyz}"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+    
+    <xacro:macro name="cylinder_link" params="name radius length origin_xyz origin_rpy material mass:=0.1 ixx:=0 iyy:=0 izz:=0">
+        <link name="${name}">
+            <visual>
+                <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>    
+                <material name="${material}"/>
+            </visual>
+            <collision>
+                <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+            </collision>
+            <inertial>
+                <mass value="${mass}"/>
+                <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+                <inertia ixx="${ixx}" iyy="${iyy}" izz="${izz}" ixy="0" ixz="0" iyz="0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+            
+    <!-- LINK CALLS  -->
+
+    <!-- Base link -->
+    <xacro:box_link 
+    name="base_link" 
+    size_x="0.6" size_y="0.4" size_z="0.2" 
+    origin_xyz="0 0 0.1" origin_rpy="0 0 0" 
+    mass="10.0" material="green" 
+    ixx="0.183" iyy="0.333" izz="0.500"/>
+
+    <!-- Lidar -->
+    <xacro:cylinder_link 
+    name="lidar" 
+    radius="0.1" length="0.05" 
+    origin_xyz="0 0 0" origin_rpy="0 0 0"
+    mass="0.1" material="white"
+    ixx="0.0001" iyy="0.0001" izz="0.0001"/>
+
+    <!-- Camera -->
+    <xacro:box_link 
+    name="camera_link" 
+    size_x="0.02" size_y="0.07" size_z="0.02" 
+    origin_xyz="0 0 0" origin_rpy="0 0 0" 
+    mass="0.1" material="white" 
+    ixx="0.0001" iyy="0.0001" izz="0.0001"/>
+
+    <!-- IMU -->
+    <xacro:box_link 
+    name="imu_link" 
+    size_x="0.025" size_y="0.08" size_z="0.01" 
+    origin_xyz="0 0 0" origin_rpy="0 0 0" 
+    mass="0.05" material="grey" 
+    ixx="0.00002" iyy="0.00002" izz="0.00002"/>
+
+
+    <!--  WHEEL MACRO  -->
+    <xacro:macro name="wheel_link" params="name radius length origin_rpy mass material ixx:=0.00375 iyy:=0.00375 izz:=0.005">
+        <link name="${name}">
+            <visual>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="${origin_rpy}"/>
+                <material name="${material}"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder radius="${radius}" length="${length}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="${origin_rpy}"/>
+            </collision>
+            <inertial>
+                <mass value="${mass}"/>
+                <origin xyz="0 0 0" rpy="${origin_rpy}"/>
+                <inertia ixx="${ixx}" iyy="${iyy}" izz="${izz}" ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+<!--  WHEEL CALLS  -->
+    <xacro:wheel_link 
+        name="left_wheel" 
+        radius="0.1" length="0.05" 
+        origin_rpy="1.57 0 0" 
+        mass="1.0" 
+        material="white"/>
+
+    <xacro:wheel_link 
+        name="right_wheel" 
+        radius="0.1" length="0.05" 
+        origin_rpy="1.57 0 0" 
+        mass="1.0" 
+        material="white"/>
+
+   <!--  CASTER WHEEL MACRO  -->
+    <xacro:macro name="caster_link" params="name radius mass material ixx:=0.001 iyy:=0.001 izz:=0.001">
+        <link name="${name}">
+            <visual>
+                <geometry>
+                    <sphere radius="${radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${material}"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <sphere radius="${radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+            <inertial>
+                <mass value="${mass}"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="${ixx}" iyy="${iyy}" izz="${izz}" ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <!--  CASTER WHEEL CALL  -->
+    <xacro:caster_link 
+        name="caster_wheel" 
+        radius="0.05" 
+        mass="0.5" 
+        material="white"/>
+
+
+    <!--  WING MACRO -->
+    <xacro:macro name="wing_link" params="name size_x size_y size_z mass material ixx:=0.00104 iyy:=0.00229 izz:=0.00271">
+        <link name="${name}">
+            <visual>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <material name="${material}"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="${size_x} ${size_y} ${size_z}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </collision>
+            <inertial>
+                <mass value="${mass}"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="${ixx}" iyy="${iyy}" izz="${izz}" ixy="0.0" ixz="0.0" iyz="0.0"/>
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <!--  WING CALLS -->
+    <xacro:wing_link 
+        name="scoop_left_wing" 
+        size_x="0.1" size_y="0.040" size_z="0.05" 
+        mass="0.5" 
+        material="white"/>
+
+    <xacro:wing_link 
+        name="scoop_right_wing" 
+        size_x="0.1" size_y="0.040" size_z="0.05" 
+        mass="0.5" 
+        material="white"/>
+
+
+    <!-- BUCKET WALL CALLS  -->
+
+    <!-- Bottom wall -->
+    <xacro:box_link 
+        name="bucket_bottom" 
+        size_x="0.1" size_y="0.3" size_z="0.01" 
+        origin_xyz="0 0 0" origin_rpy="0 0 0" 
+        mass="0.3" material="white" 
+        ixx="0.000075" iyy="0.00075" izz="0.00075"/>
+
+    <!-- Back wall -->
+    <xacro:box_link 
+        name="bucket_back_wall" 
+        size_x="0.01" size_y="0.3" size_z="0.15" 
+        origin_xyz="0 0 0" origin_rpy="0 0 0" 
+        mass="0.5" material="white" 
+        ixx="0.0010" iyy="0.0031" izz="0.0031"/>
+
+    <!-- Left wall -->
+    <xacro:box_link 
+        name="bucket_left_wall" 
+        size_x="0.1" size_y="0.006" size_z="0.15" 
+        origin_xyz="0 0 0" origin_rpy="0 0 0" 
+        mass="0.2" material="white" 
+        ixx="0.00038" iyy="0.00013" izz="0.00042"/>
+
+    <!-- Right wall -->
+    <xacro:box_link 
+        name="bucket_right_wall" 
+        size_x="0.1" size_y="0.006" size_z="0.15" 
+        origin_xyz="0 0 0" origin_rpy="0 0 0" 
+        mass="0.2" material="white" 
+        ixx="0.00038" iyy="0.00013" izz="0.00042"/>
+
+
+   <!--  BUCKET FRONT LIP CALL -->
+    <xacro:box_link 
+        name="bucket_front_lip" 
+        size_x="0.02" size_y="0.3" size_z="0.005" 
+        origin_xyz="0 0 0" origin_rpy="0 0 0" 
+        mass="0.1" material="white" 
+        ixx="0.000019" iyy="0.00045" izz="0.00045"/>
+
+
+    <!-- BUCKET JOINT MACRO  -->
+    <xacro:macro name="bucket_joint" params="name parent child xyz rpy">
+    <joint name="${name}" type="fixed">
+        <parent link="${parent}"/>
+        <child link="${child}"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+    </xacro:macro>
+
+    <!--  BUCKET JOINT CALLS  -->
+
+    <!-- Bottom joint -->
+    <xacro:bucket_joint 
+        name="bucket_bottom_joint" 
+        parent="bucket" 
+        child="bucket_bottom" 
+        xyz="0.38 0 0.01" 
+        rpy="0 0 0"/>
+
+    <!-- Back wall joint -->
+    <xacro:bucket_joint 
+        name="bucket_back_wall_joint" 
+        parent="bucket" 
+        child="bucket_back_wall" 
+        xyz="0.325 0 0.08" 
+        rpy="0 0 0"/>
+
+    <!-- Left wall joint -->
+    <xacro:bucket_joint 
+        name="bucket_left_wall_joint" 
+        parent="bucket" 
+        child="bucket_left_wall" 
+        xyz="0.38 0.15 0.08" 
+        rpy="0 0 0"/>
+
+    <!-- Right wall joint -->
+    <xacro:bucket_joint 
+        name="bucket_right_wall_joint" 
+        parent="bucket" 
+        child="bucket_right_wall" 
+        xyz="0.38 -0.15 0.08" 
+        rpy="0 0 0"/>
+
+    <!-- Front lip joint -->
+    <xacro:bucket_joint 
+        name="bucket_front_lip_joint" 
+        parent="bucket_bottom" 
+        child="bucket_front_lip" 
+        xyz="0.059 0.0 0" 
+        rpy="0 0.28 0"/>
+
+
+    <!-- BASE JOINT MACRO  -->
+    <xacro:macro name="base_joint" params="name parent child xyz rpy">
+        <joint name="${name}" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${child}"/>
+            <origin xyz="${xyz}" rpy="${rpy}"/>
+        </joint>
+    </xacro:macro>
+
+    <!-- BASE JOINT CALLS  -->
+
+    <!-- Footprint to base -->
+    <xacro:base_joint 
+        name="footprint_base_joint" 
+        parent="base_footprint" 
+        child="base_link" 
+        xyz="0 0 0.12" 
+        rpy="0 0 0"/>
+
+    <!-- Base to lidar -->
+    <xacro:base_joint 
+        name="base_lidar_joint" 
+        parent="base_link" 
+        child="lidar" 
+        xyz="0 0 0.225" 
+        rpy="0 0 0"/>
+
+
+        <!--  WHEEL JOINT MACROS -->
+    <xacro:macro name="wheel_joint_continuous" params="name parent child xyz rpy axis">
+        <joint name="${name}" type="continuous">
+            <parent link="${parent}"/>
+            <child link="${child}"/>
+            <origin xyz="${xyz}" rpy="${rpy}"/>
+            <axis xyz="${axis}"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:macro name="wheel_joint_fixed" params="name parent child xyz rpy">
+        <joint name="${name}" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${child}"/>
+            <origin xyz="${xyz}" rpy="${rpy}"/>
+        </joint>
+    </xacro:macro>
+
+    <!-- WHEEL JOINT CALLS  -->
+
+    <!-- Left wheel joint -->
+    <xacro:wheel_joint_continuous 
+        name="base_left_wheel" 
+        parent="base_link" 
+        child="left_wheel" 
+        xyz="-0.15 0.225 -0.02" 
+        rpy="0 0 0" 
+        axis="0 1 0"/>
+
+    <!-- Right wheel joint -->
+    <xacro:wheel_joint_continuous 
+        name="base_right_wheel" 
+        parent="base_link" 
+        child="right_wheel" 
+        xyz="-0.15 -0.225 -0.02" 
+        rpy="0 0 0" 
+        axis="0 1 0"/>
+
+    <!-- Caster wheel joint -->
+    <xacro:wheel_joint_fixed 
+        name="base_caster_wheel" 
+        parent="base_link" 
+        child="caster_wheel" 
+        xyz="0.2 0 -0.07" 
+        rpy="0 0 0"/>
+
+        <!--  SCOOP JOINT MACROS -->
+    <xacro:macro name="fixed_joint" params="name parent child xyz rpy">
+    <joint name="${name}" type="fixed">
+        <parent link="${parent}"/>
+        <child link="${child}"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+    </xacro:macro>
+
+    <xacro:macro name="revolute_joint" params="name parent child xyz rpy axis lower upper effort velocity">
+    <joint name="${name}" type="revolute">
+        <parent link="${parent}"/>
+        <child link="${child}"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+        <axis xyz="${axis}"/>
+        <limit lower="${lower}" upper="${upper}" effort="${effort}" velocity="${velocity}"/>
+    </joint>
+    </xacro:macro>
+
+    <!--  SCOOP JOINT CALLS -->
+
+    <!-- Bucket to left wing (fixed) -->
+    <xacro:fixed_joint 
+        name="bucket_revolute_joint" 
+        parent="scoop_left_wing" 
+        child="bucket" 
+        xyz="-0.3 -0.18 -0.015" 
+        rpy="0 0 0.0"/>
+
+    <!-- Right wing (revolute) -->
+    <xacro:revolute_joint 
+        name="scoop_right_wing_joint" 
+        parent="base_link" 
+        child="scoop_right_wing" 
+        xyz="0.30 -0.18 0.05" 
+        rpy="0 0 0" 
+        axis="0 1 0" 
+        lower="-1.57" upper="1.57" 
+        effort="10.0" velocity="1.0"/>
+
+    <!-- Left wing (revolute) -->
+    <xacro:revolute_joint 
+        name="scoop_left_wing_joint" 
+        parent="base_link" 
+        child="scoop_left_wing" 
+        xyz="0.30 0.18 0.05" 
+        rpy="0 0 0" 
+        axis="0 1 0" 
+        lower="-1.57" upper="1.57" 
+        effort="10.0" velocity="1.0"/>
+
+
+    <!--SENSOR JOINT CALLS  -->
+
+    <!-- Camera joint -->
+    <xacro:fixed_joint 
+        name="camera_joint" 
+        parent="base_link" 
+        child="camera_link" 
+        xyz="0.30 0.0 0.215" 
+        rpy="0 0.20 0"/>
+
+    <!-- IMU joint -->
+    <xacro:fixed_joint 
+        name="imu_joint" 
+        parent="base_link" 
+        child="imu_link" 
+        xyz="0.12 0.0 0.201" 
+        rpy="0 0 0"/>
+
+    <!-- Gazebo Diff Drive Plugin -->
+    <gazebo>
+        <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+            <ros>
+                <namespace>/</namespace>
+                <remapping>cmd_vel:=cmd_vel</remapping>
+                <remapping>odom:=odom</remapping>
+            </ros>
+            <update_rate>50</update_rate>
+            <left_joint>base_left_wheel</left_joint>
+            <right_joint>base_right_wheel</right_joint>
+            <wheel_separation>0.45</wheel_separation>   
+            <wheel_diameter>0.2</wheel_diameter>        
+            <torque>5.0</torque>
+            <command_timeout>1.0</command_timeout>
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+            <publish_tf>true</publish_tf>
+            <publish_odometry>true</publish_odometry>
+        </plugin>
+    </gazebo>
+</robot>
