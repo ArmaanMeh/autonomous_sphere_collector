@@ -1,3 +1,5 @@
+# Configuration file for ROS 2 Control (Controller Manager)
+---
 controller_manager:
   ros__parameters:
     update_rate: 50  # Hz
@@ -13,37 +15,44 @@ controller_manager:
       type: joint_trajectory_controller/JointTrajectoryController
 
 # ----------------------------------------------------------------
-# Controller Specific Parameters (top-level siblings)
+# Controller Specific Parameters
 # ----------------------------------------------------------------
 
 diff_drive_controller:
   ros__parameters:
-    left_wheel_names: ["base_left_wheel_joint"]
-    right_wheel_names: ["base_right_wheel_joint"]
+    # Wheel Joints
+    left_wheel_names: ["base_left_wheel"]
+    right_wheel_names: ["base_right_wheel"]
+    
+    # Kinematics
     wheel_separation: 0.45
     wheel_radius: 0.1
 
-    # Optional tuning multipliers
+    # Optional tuning multipliers (Recommended to keep at 1.0 initially)
     wheel_separation_multiplier: 1.0
     wheel_radius_multiplier: 1.0
 
+    # Timing and Output
     cmd_vel_timeout: 0.5
     publish_rate: 50.0
     use_stamped_vel: true
+    
+    # Frames
     base_frame_id: base_link
-    odom_frame_id: odom   # Added for clarity
+    odom_frame_id: odom
 
 joint_state_broadcaster:
-  ros__parameters: {}
+  ros__parameters:
+    # No specific parameters needed for the joint state broadcaster
 
 scoop_controller:
   ros__parameters:
+    # Joints managed by this controller
     joints:
       - scoop_left_wing_joint
+      - scoop_right_wing_joint
 
-    state_publish_rate: 50.0
-    action_monitor_rate: 20.0
-
+    # Interface Configuration
     command_interfaces:
       - position
 
@@ -51,11 +60,23 @@ scoop_controller:
       - position
       - velocity
 
+    # Publishing Rates
+    state_publish_rate: 50.0
+    action_monitor_rate: 20.0
+
+    # Goal Handling
     allow_partial_joints_goal: false
 
-    # Optional constraints for smoother simulation
+    # Constraints (Crucial for simulation robustness and action completion)
     constraints:
+      # General timing constraint for the whole goal
       goal_time: 0.5
-      stopped_velocity_tolerance: 0.01
+      # Tolerance for velocity when checking if the joint has stopped
+      stopped_velocity_tolerance: 0.01 
+      
+      # Per-joint position goal tolerance
       scoop_left_wing_joint:
+        goal: 0.05
+      scoop_right_wing_joint:
+        # Added symmetric constraint for the right wing
         goal: 0.05
