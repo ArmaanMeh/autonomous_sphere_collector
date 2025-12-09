@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.substitutions import Command, PathJoinSubstitution
@@ -10,14 +10,8 @@ def generate_launch_description():
     # Package paths
     pkg_share = FindPackageShare('autonomous_sphere_collector_pkg').find('autonomous_sphere_collector_pkg')
     urdf_file = os.path.join(pkg_share, 'urdf', 'Robot.xacro')
+    world_file = os.path.join(pkg_share, 'resource', 'assessment.sdf')
     controllers_file = os.path.join(pkg_share, 'config', 'ros_controllers.yaml')
-
-    # World file path (SDF provided by professor)
-    world_file = os.path.join(
-        os.getenv('HOME'),
-        'ros2/ros2_ws/src/autonomous_sphere_collector_pkg/resource/ros2_assesment_world-main/worlds',
-        'assesment.sdf'
-    )
 
     # Robot State Publisher
     robot_state_publisher = Node(
@@ -25,7 +19,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': Command(['xacro ', urdf_file])
+            'robot_description': Command(['xacro', urdf_file])
         }]
     )
 
