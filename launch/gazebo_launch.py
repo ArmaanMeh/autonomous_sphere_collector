@@ -26,7 +26,7 @@ def generate_launch_description():
     # Gazebo with professor's world
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py'])
+            PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
         ]),
         launch_arguments={'world': world_file}.items()
     )

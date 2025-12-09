@@ -18,7 +18,7 @@ setup(
         
         # 3. Include Launch files
         # It is convention to name launch files .launch.py
-        (os.path.join('share', package_name, 'launch'), glob('launch/*_launch.py')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         
         # 4. Include URDF/Xacro files
         # Note: If you have subfolders (like urdf/wheels/), glob won't pick them up recursively
@@ -32,7 +32,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
 
         # 7. Include World files (if you use Gazebo worlds)
-        (os.path.join('share', package_name, 'worlds'), glob('worlds/*.sdf')),
+        (os.path.join('share', package_name, 'resource'), glob('resource/*.sdf')),
         
     ],
     install_requires=['setuptools'],
