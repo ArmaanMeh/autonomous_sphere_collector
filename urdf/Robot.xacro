@@ -1,12 +1,18 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="autonomous_sphere_collector">
 
+    <!-- 
+        CRITICAL FIX FOR GAZEBO HARMONIC/IGNITION:
+        Changed the plugin from 'gazebo_ros2_control/GazeboSystem'
+        to the correct name for modern Gazebo Sim (gz_ros2_control::GazeboSystem).
+    -->
     <ros2_control name="DiffDriveSystem" type="system">
         <hardware>
-            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+            <plugin>gz_ros2_control::GazeboSystem</plugin>
         </hardware>
+        
         <!-- Left wheel joint -->
-        <joint name="base_left_wheel_joint">
+        <joint name="base_left_wheel">
             <command_interfaces>
                 <command_interface name="velocity"/>
             </command_interfaces>
@@ -15,8 +21,9 @@
                 <state_interface name="velocity"/>
             </state_interfaces>
         </joint>
+        
         <!-- Right wheel joint -->
-        <joint name="base_right_wheel_joint">
+        <joint name="base_right_wheel">
             <command_interfaces>
                 <command_interface name="velocity"/>
             </command_interfaces>
@@ -25,8 +32,20 @@
                 <state_interface name="velocity"/>
             </state_interfaces>
         </joint>
-        <!-- Left wing joint -->
+        
+        <!-- Left wing joint (for scoop control) -->
         <joint name="scoop_left_wing_joint">
+            <command_interfaces>
+                <command_interface name="position"/>
+            </command_interfaces>
+            <state_interfaces>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </state_interfaces>
+        </joint>
+
+        <!-- Right wing joint (Added for completeness, must be included in ros2_control) -->
+        <joint name="scoop_right_wing_joint">
             <command_interfaces>
                 <command_interface name="position"/>
             </command_interfaces>
@@ -570,25 +589,4 @@
         xyz="0.12 0.0 0.201" 
         rpy="0 0 0"/>
 
-    <!-- Gazebo Diff Drive Plugin -->
-    <gazebo>
-        <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
-            <ros>
-                <namespace>/</namespace>
-                <remapping>cmd_vel:=cmd_vel</remapping>
-                <remapping>odom:=odom</remapping>
-            </ros>
-            <update_rate>50</update_rate>
-            <left_joint>base_left_wheel</left_joint>
-            <right_joint>base_right_wheel</right_joint>
-            <wheel_separation>0.45</wheel_separation>   
-            <wheel_diameter>0.2</wheel_diameter>        
-            <torque>5.0</torque>
-            <command_timeout>1.0</command_timeout>
-            <odometry_frame>odom</odometry_frame>
-            <robot_base_frame>base_link</robot_base_frame>
-            <publish_tf>true</publish_tf>
-            <publish_odometry>true</publish_odometry>
-        </plugin>
-    </gazebo>
 </robot>
