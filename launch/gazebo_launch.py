@@ -8,16 +8,17 @@ from launch_ros.actions import Node
 from launch.substitutions import Command, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # --- 1. Package and File Paths ---
     pkg_share = FindPackageShare('autonomous_sphere_collector_pkg')
 
-    urdf_file = PathJoinSubstitution([
-        pkg_share,
+    urdf_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector_pkg'),
         'urdf',
-        'Robot.xacro'
-    ])
+        'Robot.urdf'
+    )
 
     world_file = PathJoinSubstitution([
         FindPackageShare('assessment_world'),
@@ -39,10 +40,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': ParameterValue(
-                Command(['xacro', urdf_file]),
-                value_type=str
-            )
+            'robot_description': open(urdf_file).read()
         }]
     )
 
