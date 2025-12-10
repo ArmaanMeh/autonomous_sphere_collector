@@ -2,10 +2,10 @@
 
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import Command, PathJoinSubstitution
+from launch.substitutions import Command, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
 
@@ -20,8 +20,8 @@ def generate_launch_description():
     ])
 
     world_file = PathJoinSubstitution([
-        pkg_share,
-        'resource',
+        FindPackageShare('assessment_world'),
+        'worlds',
         'assessment.sdf'
     ])
 
@@ -32,7 +32,7 @@ def generate_launch_description():
     ])
 
     # --- 2. ROS Nodes and Actions ---
-
+    print("Resolved URDF path:", urdf_file)
     # 🤖 Robot State Publisher
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -40,7 +40,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'robot_description': ParameterValue(
-                Command(['xacro',urdf_file]),
+                Command(['xacro', urdf_file]),
                 value_type=str
             )
         }]
