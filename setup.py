@@ -30,9 +30,6 @@ setup(
 
         # 6. Include Config/Params files (if you use YAML files later)
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
-
-        # 7. Include World files (if you use Gazebo worlds)
-        (os.path.join('share', package_name, 'resource'), glob('resource/*.sdf')),
         
     ],
     install_requires=['setuptools'],
