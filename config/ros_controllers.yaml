@@ -1,58 +1,61 @@
-# Configuration file for ROS 2 Control (Controller Manager)
----
+# Controller Manager configuration
 controller_manager:
   ros__parameters:
     update_rate: 50  # Hz
 
-    # Define the controllers and their types
-    diff_drive_controller:
-      type: diff_drive_controller/DiffDriveController
-
+    # Definition of the controllers
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
 
     scoop_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
 # ----------------------------------------------------------------
-# Controller Specific Parameters
+# 1. Joint State Broadcaster
 # ----------------------------------------------------------------
+# Publishes the state of all joints to /joint_states
+joint_state_broadcaster:
+  ros__parameters: {}
 
+# ----------------------------------------------------------------
+# 2. Differential Drive Controller (Wheels)
+# ----------------------------------------------------------------
 diff_drive_controller:
   ros__parameters:
-    # Wheel Joints
-    left_wheel_names: ["base_left_wheel"]
-    right_wheel_names: ["base_right_wheel"]
-    
-    # Kinematics
-    wheel_separation: 0.45
+    # Joint names must match your XACRO exactly
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+
+    # Robot Kinematics (Based on your XACRO properties)
+    wheel_separation: 0.45 
     wheel_radius: 0.1
 
-    # Optional tuning multipliers (Recommended to keep at 1.0 initially)
-    wheel_separation_multiplier: 1.0
-    wheel_radius_multiplier: 1.0
-
-    # Timing and Output
-    cmd_vel_timeout: 0.5
+    # Odometry and Publishing
     publish_rate: 50.0
-    use_stamped_vel: true
-    
-    # Frames
-    base_frame_id: base_link
     odom_frame_id: odom
+    base_frame_id: base_footprint # Using the root of your robot tree
+    
+    # Motion constraints
+    cmd_vel_timeout: 0.5
+    use_stamped_vel: false # Set to true if your cmd_vel uses TwistStamped
 
-joint_state_broadcaster:
-  ros__parameters:
-    # No specific parameters needed for the joint state broadcaster
+    # Covariance for EKF/Localization
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
 
+# ----------------------------------------------------------------
+# 3. Scoop Controller (Tilt Mechanism)
+# ----------------------------------------------------------------
 scoop_controller:
   ros__parameters:
-    # Joints managed by this controller
+    # The main revolute joint we defined in scoop_mechanism.xacro
     joints:
-      - scoop_left_wing_joint
-      - scoop_right_wing_joint
+      - scoop_pivot_joint
 
-    # Interface Configuration
+    # Must match the hardwareInterface in your XACRO transmission
     command_interfaces:
       - position
 
@@ -60,23 +63,14 @@ scoop_controller:
       - position
       - velocity
 
-    # Publishing Rates
+    # Smooth the motion
     state_publish_rate: 50.0
     action_monitor_rate: 20.0
 
-    # Goal Handling
-    allow_partial_joints_goal: false
-
-    # Constraints (Crucial for simulation robustness and action completion)
+    # Safety constraints to prevent the scoop from overshooting
     constraints:
-      # General timing constraint for the whole goal
       goal_time: 0.5
-      # Tolerance for velocity when checking if the joint has stopped
-      stopped_velocity_tolerance: 0.01 
-      
-      # Per-joint position goal tolerance
-      scoop_left_wing_joint:
-        goal: 0.05
-      scoop_right_wing_joint:
-        # Added symmetric constraint for the right wing
-        goal: 0.05
+      stopped_velocity_tolerance: 0.02
+      scoop_pivot_joint:
+        trajectory: 0.10
+        goal: 0.02
