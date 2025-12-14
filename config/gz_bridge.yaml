@@ -1,0 +1,61 @@
+# =================================================================
+# ROS-GZ Bridge Configuration
+# Maps ROS 2 topics to Gazebo (Ignition) Transport topics
+# Direction: GZ_TO_ROS, ROS_TO_GZ, or BIDIRECTIONAL
+# =================================================================
+
+- # --- 1. Clock (Essential for Simulation Time) ---
+  ros_topic_name: "clock"
+  gz_topic_name: "clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: "GZ_TO_ROS"
+
+- # --- 2. Joint States (Reading Joint Angles from Gazebo) ---
+  # Allows the joint_state_broadcaster to publish state data
+  ros_topic_name: "joint_states"
+  gz_topic_name: "model/autonomous_sphere_collector/joint_states" # Use the model-specific joint states
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: "GZ_TO_ROS"
+
+- # --- 3. Base Mobility Command (Driving the Wheels) ---
+  # Allows ROS commands (like teleop) to move the robot in Gazebo
+  ros_topic_name: "cmd_vel"
+  # NOTE: The DiffDrive controller outputs to the model's command topic, 
+  # which then often needs to be bridged to Gazebo's general command.
+  # We use the standard Gazebo /cmd_vel topic which the diff drive plugin is listening on.
+  gz_topic_name: "cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: "ROS_TO_GZ"
+  
+- # --- 4. Odometry (Robot's position feedback from Gazebo) ---
+  ros_topic_name: "odom"
+  gz_topic_name: "odom" # Assuming the DiffDrive plugin publishes here in GZ
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: "GZ_TO_ROS"
+
+- # --- 5. Scoop Controller Command (Crucial for the Tilt Mechanism) ---
+  # The JointTrajectoryController listens for this message to command the scoop.
+  ros_topic_name: "/scoop_controller/joint_trajectory" 
+  gz_topic_name: "/scoop_controller/joint_trajectory"
+  ros_type_name: "trajectory_msgs/msg/JointTrajectory"
+  gz_type_name: "gz.msgs.JointTrajectory"
+  direction: "ROS_TO_GZ"
+
+# --- 6. Sensor Topics (If you have a Lidar/IMU in your XACRO) ---
+# NOTE: Update topic names if they differ in your XACRO/Gazebo plugin setup.
+
+- ros_topic_name: "scan"
+  gz_topic_name: "scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: "GZ_TO_ROS"
+
+- ros_topic_name: "imu"
+  gz_topic_name: "imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: "GZ_TO_ROS"
