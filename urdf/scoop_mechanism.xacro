@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://ros.org/wiki/xacro">
+
+    <xacro:property name="pivot_rod_mass" value="0.5" />
+    <xacro:property name="pivot_rod_radius" value="0.010" />
+    <xacro:property name="pivot_rod_length_x" value="0.120" />
+    
+    <xacro:property name="scoop_depth_x" value="0.01" />
+    <xacro:property name="scoop_width_y" value="0.3" />
+    <xacro:property name="scoop_height_z" value="0.1" />
+    
+    <xacro:property name="wall_thickness_z" value="0.008" />
+    <xacro:property name="scoop_lrw_width_y" value="${wall_thickness_z}"/>
+    <xacro:property name="scoop_ramp_length_z" value="0.004" />
+
+    <xacro:property name="scoop_b_depth_x" value="0.1" />
+    <xacro:property name="scoop_lrw_depth_x" value="0.1" /> 
+    <xacro:property name="scoop_lrw_height_z" value="0.1" />
+    <xacro:property name="scoop_ramp_length_x" value="0.04" />
+
+    <xacro:property name="scoop_mass" value="1.0" />
+
+    <joint name="pivot_rod_one_link_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="pivot_rod_one_link"/>
+        <origin xyz="0.36 0.17 0" rpy="0 0 0"/>        
+    </joint>
+
+    <link name="pivot_rod_one_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.5708 0"/> <geometry>
+                <cylinder radius="${pivot_rod_radius}" length="${pivot_rod_length_x}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+            <geometry>
+                <cylinder radius="${pivot_rod_radius}" length="${pivot_rod_length_x}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${pivot_rod_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/> 
+            <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.0006125" iyz="0.0" izz="0.0006125"/>
+        </inertial>
+    </link>
+
+    <joint name="pivot_rod_two_link_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="pivot_rod_two_link"/>
+        <origin xyz="0.36 -0.17 0" rpy="0 0 0"/> 
+    </joint>
+
+    <link name="pivot_rod_two_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+            <geometry>
+                <cylinder radius="${pivot_rod_radius}" length="${pivot_rod_length_x}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 1.5708 0"/>
+            <geometry>
+                <cylinder radius="${pivot_rod_radius}" length="${pivot_rod_length_x}"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="${pivot_rod_mass}"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/> 
+            <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.0006125" iyz="0.0" izz="0.0006125"/>
+        </inertial>
+    </link>
+
+    <joint name="scoop_pivot_joint" type="revolute">
+        <parent link="base_link"/>
+        <child link="scoop_link"/>
+        <origin xyz="0.36 0 -0.03" rpy="0 0 0"/> 
+        <axis xyz="0 1 0"/> <child_link_offset xyz="-0.005 0 -0.05"/>       
+        <limit effort="100.0" velocity="1.0" lower="-1.5708" upper="0.610865"/>
+    </joint>
+
+    <link name="scoop_link">
+        <inertial>
+            <mass value="${scoop_mass}"/>
+            <origin xyz="0 0 0" rpy=" 0 0 0"/>
+            <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05"/>
+        </inertial>
+        <collision name="scoop_collision">
+            <origin xyz="0 0 0" rpy=" 0 0 0"/>
+            <geometry>
+                <box size="${scoop_depth_x} ${scoop_width_y} ${scoop_height_z}"/>
+            </geometry>
+        </collision>
+        <visual name="scoop_visual">
+            <origin xyz="0 0 0" rpy=" 0 0 0"/>
+            <geometry>
+                <box size="${scoop_depth_x} ${scoop_width_y} ${scoop_height_z}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+
+    <joint name="scoop_bottom_joint" type="fixed">
+        <parent link="scoop_link"/>
+        <child link="scoop_bottom_wall_link"/>
+        <origin xyz="0.055 0 -0.054" rpy="0 0 0"/>
+    </joint>
+
+    <link name="scoop_bottom_wall_link">
+        <inertial>
+            <mass value="0.5"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" izz="0.001" iyz="0.0"/>
+        </inertial>
+        <collision>
+            <geometry>
+                <box size="${scoop_b_depth_x} ${scoop_width_y} ${wall_thickness_z}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+                <box size="${scoop_b_depth_x} ${scoop_width_y} ${wall_thickness_z}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+
+    <joint name="scoop_ramp_joint" type="fixed">
+        <parent link="scoop_bottom_wall_link"/>
+        <child link="scoop_ramp_link"/>
+        <origin xyz="0.07 0 0" rpy="0 0.1745 0"/> </joint>
+
+    <link name="scoop_ramp_link">
+        <inertial>
+            <mass value="0.1"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" izz="0.0001" iyz="0.0"/>
+        </inertial>
+        <collision>
+            <geometry>
+                <box size="${scoop_ramp_length_x} ${scoop_width_y} ${scoop_ramp_length_z}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+                <box size="${scoop_ramp_length_x} ${scoop_width_y} ${scoop_ramp_length_z}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+    
+    <joint name="scoop_left_joint" type="fixed">
+        <parent link="scoop_link"/>
+        <child link="scoop_left_wall_link"/>
+        <origin xyz="0.055 0.154 0" rpy="0 0 0"/>
+    </joint>
+    
+    <link name="scoop_left_wall_link">
+        <inertial>
+            <mass value="0.5"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" izz="0.001" iyz="0.0"/>
+        </inertial>
+        <collision>
+            <geometry>
+                <box size="${scoop_lrw_depth_x} ${scoop_lrw_width_y} ${scoop_lrw_height_z}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+                <box size="${scoop_lrw_depth_x} ${scoop_lrw_width_y} ${scoop_lrw_height_z}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+
+    <joint name="scoop_right_joint" type="fixed">
+        <parent link="scoop_link"/>
+        <child link="scoop_right_wall_link"/>
+        <origin xyz="0.055 -0.154 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="scoop_right_wall_link">
+        <inertial>
+            <mass value="0.5"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" izz="0.001" iyz="0.0"/>
+        </inertial>
+        <collision>
+            <geometry>
+                <box size="${scoop_lrw_depth_x} ${scoop_lrw_width_y} ${scoop_lrw_height_z}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <geometry>
+                <box size="${scoop_lrw_depth_x} ${scoop_lrw_width_y} ${scoop_lrw_height_z}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+    </link>
+
+</robot>
