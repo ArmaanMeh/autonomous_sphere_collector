@@ -13,7 +13,7 @@ def generate_launch_description():
 
     # 3. Define paths to xacro and rviz files based on the share directory
     # Note: Ensure these files are installed via setup.py or CMakeLists.txt
-    urdf_file = os.path.join(pkg_share, 'urdf', 'Robot.xacro')
+    urdf_file = os.path.join(pkg_share, 'urdf', 'autonomous_sphere_collector.urdf.xacro')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'Robot_view.rviz')
 
     # 4. Create the Robot State Publisher Node
