@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    
+    <gazebo>
+        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+            <parameters>$(find autonomous_sphere_collector_pkg)/config/ros_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+    <gazebo reference="imu_link">
+        <sensor name="imu" type="imu">
+            <always_on>1</always_on>
+            <update_rate>10</update_rate>
+            <visualize>true</visualize>
+            <topic>imu</topic>
+            <enable_metrics>true</enable_metrics>
+            <gz_frame_id>imu_link</gz_frame_id>
+        </sensor>
+    </gazebo>
+
+    <gazebo reference="scan_link">
+        <sensor name="gpu_lidar" type="gpu_lidar">
+            <update_rate>5</update_rate>
+            <topic>scan</topic>
+            <gz_frame_id>scan_link</gz_frame_id>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>720</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14156</min_angle>
+                        <max_angle>3.14156</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.05</min>
+                    <max>10.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+                    <frame_id>scan_link</frame_id>
+            </lidar>
+            <always_on>1</always_on>
+            <visualize>true</visualize>
+        </sensor>
+    </gazebo>
+
+    <gazebo reference="camera_link">
+        <sensor name="rgbd_camera" type="depth_camera">
+            <update_rate>15.0</update_rate>
+            <visualize>true</visualize>
+            <camera>
+                <horizontal_fov>1.047</horizontal_fov> 
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.1</near>
+                    <far>10.0</far>
+                </clip>
+            </camera>
+            <depth_camera>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>L16</format>
+                </image>
+                <clip>
+                    <near>0.1</near>
+                    <far>10.0</far>
+                </clip>
+            </depth_camera>
+        </sensor>
+    </gazebo>
+</robot>
