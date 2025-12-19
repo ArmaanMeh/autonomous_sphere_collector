@@ -42,6 +42,10 @@ install(
   DIRECTORY rviz/
   DESTINATION share/${PROJECT_NAME}/rviz
 )
+install(
+  DIRECTORY map/
+  DESTINATION share/${PROJECT_NAME}/map
+)
 # Install URDF/Xacro files and Meshes/Models
 # Use GLOB_RECURSE to ensure all files (including subfolders for meshes) are included
 file(GLOB_RECURSE URDF_FILES "urdf/*")
