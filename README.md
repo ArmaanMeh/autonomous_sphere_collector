@@ -1,6 +1,75 @@
 # autonomous_sphere_collector
 # ROS 2 Autonomous Sphere Collector Robot
+## 🔗 Project Submission Links
 
+| Item | Status | Link |
+| :--- | :--- | :--- |
+| **GitHub Repository** | Required | [https://github.com/ArmaanMeh/autonomous_sphere_collector.git] |
+| **Video Demonstration** | Required | [] |
+
+---
+
+## 🚀 Setup and Installation
+
+This project is built and tested on **ROS 2 Jazzy** and relies on **Gazebo Harmonic** (via `ros_gz_sim`).
+
+### 1. Install ROS 2 Jazzy and Gazebo Harmonic
+
+If you do not have the required ROS environment, follow the official installation guide. The system also requires the full Nav2 suite.
+
+```bash
+# 1. Update and setup locale
+sudo apt update && sudo apt install locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+# 2. Add ROS 2 repository
+sudo apt install software-properties-common
+sudo add-apt-repository universe
+sudo apt update && sudo apt install curl
+sudo curl -sSL [https://raw.githubusercontent.com/ros/rosdistro/master/ros.key](https://raw.githubusercontent.com/ros/rosdistro/master/ros.key) -o /usr/share/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] [http://packages.ros.org/ros2/ubuntu](http://packages.ros.org/ros2/ubuntu) $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+# 3. Install ROS 2 Jazzy (Desktop recommended)
+sudo apt update
+sudo apt install ros-jazzy-desktop
+
+# 4. Install Gazebo Harmonic (via ros-gz)
+sudo apt install ros-jazzy-ros-gz-sim
+
+# 5. Install Nav2 and other dependencies (Crucial for launch files)
+sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-slam-toolbox
+
+# Create and navigate to the workspace source directory
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+
+# Clone the autonomous_sphere_collector_pkg repository
+# NOTE: Replace <YOUR_GIT_LINK> with the actual repository URL.
+git clone <YOUR_GIT_LINK> autonomous_sphere_collector_pkg
+
+# Navigate back to the root of the workspace
+cd ~/ros2_ws
+# Build the specific package
+colcon build --packages-select autonomous_sphere_collector_pkg
+
+# Source the workspace setup file (required for every new terminal session)
+source install/setup.bash
+
+Our approach focused on creating a robust, modular pipeline to tackle the core challenge: collecting small, movable objects using limited sensing.
+
+Design Philosophy: We utilized a modular Xacro-based URDF with a stable four-wheel differential-drive base. The control system (ros2_control) separated locomotion from manipulation.
+
+Sensing and Detection: Since the robot only uses a 2D LiDAR, the detection system was designed to perform geometric clustering of scan points to distinguish the three spheres by their measured "apparent radii."
+
+Modular Automation Logic: The autonomous system was strictly separated into two custom nodes to enhance robustness and maintainability:
+
+    target_finder.py (Detection Node): A passive subscriber that processes LiDAR data, identifies targets, and calculates the necessary approach and pickup poses. It only publishes pose arrays.
+
+    pos_commander.py (Action Node): An active node that subscribes to the pose arrays and uses Nav2 Action Clients to execute the navigation, collection (open/advance/close), and delivery sequence (pushing the spheres into the goal).
+
+This structure ensures the detection system continuously provides targets while the action node manages the complex state machine for navigation and manipulation.
 ## 🎯 Introduction & Objective
 
 This project documents the development and current state of a ROS 2-based mobile robot system designed for the autonomous task of locating, collecting, and delivering three spheres of varying size and color to a designated goal zone within a mapped environment.
@@ -20,9 +89,9 @@ The original objective was to autonomously complete the following sequence for a
 
 ### 1. Robot Model (`URDF` / `Xacro`)
 The robot is defined using a modular Xacro-based URDF, detailing the chassis, wheels, arms, and sensor placement.
-* **Locomotion:** Four-wheel differential-drive configuration.
-* **Manipulation:** Two L-shaped front arms.
-* **Sensors:** A 2D LiDAR is mounted low.
+* **Locomotion:** Two-wheel differential-drive configuration.
+* **Manipulation:** Bulldozer type bucket
+* **Sensors:** A 2D Lidar, camera ,IMU have been used.
 
 ### 2. Control Integration and Movement Limitations
 Hardware abstraction is handled by `ros2_control`.
