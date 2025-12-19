@@ -29,14 +29,22 @@ diff_drive_controller:
     left_wheel_names: ["left_wheel_joint"]
     right_wheel_names: ["right_wheel_joint"]
 
+    command_interfaces:
+      - velocity
+
+    state_interfaces:
+      - velocity
+      - position
+
     # Robot Kinematics (Based on your XACRO properties)
-    wheel_separation: 0.45 
+    wheel_separation: 0.47 
     wheel_radius: 0.1
 
     # Odometry and Publishing
     publish_rate: 50.0
     odom_frame_id: odom
-    base_frame_id: base_footprint # Using the root of your robot tree
+    base_frame_id: base_footprint 
+    cmd_vel_topic: cmd_vel
     
     # Motion constraints
     cmd_vel_timeout: 0.5
