@@ -1,11 +1,26 @@
-# autonomous_sphere_collector
 # ROS 2 Autonomous Sphere Collector Robot
+
 ## 🔗 Project Submission Links
 
 | Item | Status | Link |
 | :--- | :--- | :--- |
 | **GitHub Repository** | Required | [https://github.com/ArmaanMeh/autonomous_sphere_collector.git] |
-| **Video Demonstration** | Required | [] |
+| **Video Demonstration** | Required | [Link to 5-minute Video Demo] |
+
+---
+
+## 🎯 Introduction & Objective
+
+This project documents the development and current state of a ROS 2-based mobile robot system designed for the autonomous task of locating, collecting, and delivering three spheres of varying size and color to a designated goal zone within a mapped environment.
+
+The robot platform features a custom model, `ros2_control` hardware abstraction, and was originally intended to use the Nav2 stack for autonomous movement.
+
+### System Goal (Original Objective)
+The original objective was to autonomously complete the following sequence for all three spheres:
+1. Detect the position and estimated radius of a sphere via **LiDAR-only geometric clustering**.
+2. Navigate to an approach pose.
+3. Collect the sphere using the bulldozer bucket.
+4. Navigate to the predefined goal zone and deliver the ball.
 
 ---
 
@@ -16,6 +31,8 @@ This project is built and tested on **ROS 2 Jazzy** and relies on **Gazebo Harmo
 ### 1. Install ROS 2 Jazzy and Gazebo Harmonic
 
 If you do not have the required ROS environment, follow the official installation guide. The system also requires the full Nav2 suite.
+
+
 
 ```bash
 # 1. Update and setup locale
@@ -41,27 +58,32 @@ sudo apt install ros-jazzy-ros-gz-sim
 # 5. Install Nav2 and other dependencies (Crucial for launch files)
 sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-slam-toolbox
 
+2. Project Clone, Build, and Source
+Bash
+
 # Create and navigate to the workspace source directory
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
 
 # Clone the autonomous_sphere_collector_pkg repository
-# NOTE: Replace <YOUR_GIT_LINK> with the actual repository URL.
-git clone <YOUR_GIT_LINK> autonomous_sphere_collector_pkg
+git clone [https://github.com/ArmaanMeh/autonomous_sphere_collector.git](https://github.com/ArmaanMeh/autonomous_sphere_collector.git) autonomous_sphere_collector_pkg
 
 # Navigate back to the root of the workspace
 cd ~/ros2_ws
+
 # Build the specific package
 colcon build --packages-select autonomous_sphere_collector_pkg
 
 # Source the workspace setup file (required for every new terminal session)
 source install/setup.bash
 
+💡 Project Approach and Architecture
+
 Our approach focused on creating a robust, modular pipeline to tackle the core challenge: collecting small, movable objects using limited sensing.
 
-Design Philosophy: We utilized a modular Xacro-based URDF with a stable four-wheel differential-drive base. The control system (ros2_control) separated locomotion from manipulation.
+Design Philosophy: We utilized a modular Xacro-based URDF with a stable two-wheel differential-drive base. The control system (ros2_control) separated locomotion from manipulation.
 
-Sensing and Detection: Since the robot only uses a 2D LiDAR, the detection system was designed to perform geometric clustering of scan points to distinguish the three spheres by their measured "apparent radii."
+Sensing and Detection: Since the robot primarily uses a 2D LiDAR, the detection system was designed to perform geometric clustering of scan points to distinguish the three spheres by their measured "apparent radii." The system was designed to rely heavily on this geometric signature despite the presence of a camera and IMU.
 
 Modular Automation Logic: The autonomous system was strictly separated into two custom nodes to enhance robustness and maintainability:
 
@@ -69,86 +91,76 @@ Modular Automation Logic: The autonomous system was strictly separated into two 
 
     pos_commander.py (Action Node): An active node that subscribes to the pose arrays and uses Nav2 Action Clients to execute the navigation, collection (open/advance/close), and delivery sequence (pushing the spheres into the goal).
 
-This structure ensures the detection system continuously provides targets while the action node manages the complex state machine for navigation and manipulation.
-## 🎯 Introduction & Objective
+🤖 System Implementation and Architecture (Current State)
+1. Robot Model (URDF / Xacro)
 
-This project documents the development and current state of a ROS 2-based mobile robot system designed for the autonomous task of locating, collecting, and delivering three spheres of varying size and color to a designated goal zone within a mapped environment.
+The robot is defined using a modular Xacro-based URDF.
 
-The robot platform features a custom model, `ros2_control` hardware abstraction, and was originally intended to use the Nav2 stack for autonomous movement.
+    Locomotion: Two-wheel differential-drive configuration.
 
-### System Goal (Original Objective)
-The original objective was to autonomously complete the following sequence for all three spheres:
-1. Detect the position and estimated radius of a sphere via **LiDAR-only geometric clustering**.
-2. Navigate to an approach pose.
-3. Collect the sphere using the L-shaped front arms.
-4. Navigate to the predefined goal zone and deliver the ball.
+    Manipulation: Bulldozer-type bucket/scoop controlled by arm joints.
 
----
+    Sensors: A 2D Lidar, Camera, and IMU have been used.
 
-## 🤖 System Implementation and Architecture
+2. Control Integration and Movement Limitations
 
-### 1. Robot Model (`URDF` / `Xacro`)
-The robot is defined using a modular Xacro-based URDF, detailing the chassis, wheels, arms, and sensor placement.
-* **Locomotion:** Two-wheel differential-drive configuration.
-* **Manipulation:** Bulldozer type bucket
-* **Sensors:** A 2D Lidar, camera ,IMU have been used.
+Hardware abstraction is handled by ros2_control.
+Controller	Function	Status (Current)
+diff_drive_controller	Locomotion (Wheels)	Crashed
+joint_trajectory_controller	Manipulation (Arms/Scoop)	Functional
 
-### 2. Control Integration and Movement Limitations
-Hardware abstraction is handled by `ros2_control`.
+The Linear and Angular Velocity Issue: The differential drive is designed to accept commands for Linear Velocity (cmd_vel.linear.x) and Angular Velocity (cmd_vel.angular.z). However, the controller responsible for translating these commands to wheel actuation is failing. This prevents the robot from executing or maintaining any commanded linear or angular velocities, making all navigational functions impossible.
 
-| Controller | Function | Status (Current) |
-| :--- | :--- | :--- |
-| **`diff_drive_controller`** | Locomotion (Wheels) | **Crashed** |
-| **`joint_trajectory_controller`** | Manipulation (Arms/Scoop) | **Functional** |
+Available Movements (Current State): Due to the failure of the diff_drive_controller, the robot is stationary. The only operational movement available is control of the scoop arms via the working joint_trajectory_controller.
+❌ Current System State and Fatal Errors
 
-**Available Movements (Current State):**
-Due to the failure of the `diff_drive_controller`, the robot is stationary. The only operational movement available is control of the scoop arms.
+The system is currently in a critical failure state. An underlying issue is preventing core control and navigation components from initializing, rendering almost all advanced functionality inoperable.
+Crashed/Inoperable Components (The "Everything is now Crashed" State)
+Component	Status	Detail
+Locomotion	Crashed	The diff_drive_controller is failing to activate or communicate, meaning the robot cannot move.
+SLAM / Mapping	Crashed	The SLAM Toolbox node fails to start.
+Map Server	Crashed	The nav2_map_server fails to initialize the map, preventing costmap generation.
+Nav2 Navigation	Crashed	The entire Nav2 stack (AMCL, planners, etc.) fails to launch due to missing critical dependencies (map, working locomotion).
+Autonomous Logic	Crashed	The custom detection (target_finder.py) and collection (pos_commander.py) nodes fail without a running Nav2 stack or functional topics.
+Achieved/Functional Components
+Component	Status	Detail
+Robot Model	Functional	The robot model successfully spawns in the Gazebo environment.
+Scoop/Arm Control	Functional	The joint_trajectory_controller for the scoop arms remains functional. The arms can be commanded to open and close.
+🛠️ Launch Commands and Troubleshooting
+Launch Status
 
-**The Linear and Angular Velocity Issue:**
-The differential drive is designed to accept commands for **Linear Velocity** (`cmd_vel.linear.x`) and **Angular Velocity** (`cmd_vel.angular.z`). However, the controller responsible for translating these commands to wheel actuation is failing. This prevents the robot from executing or maintaining any commanded linear or angular velocities, making all navigational functions impossible.
-
----
-
-## ❌ Current System State and Fatal Errors
-
-The system is currently in a critical failure state. An underlying issue is preventing core control and navigation components from initializing properly, rendering almost all advanced functionality inoperable.
-
-### Achieved/Functional Components
-| Component | Status | Detail |
-| :--- | :--- | :--- |
-| **Robot Model** | **Functional** | The robot model successfully spawns in the Gazebo environment. |
-| **Scoop/Arm Control** | **Functional** | The `joint_trajectory_controller` for the scoop arms remains functional. The arms can be commanded to open and close. |
-
-### Crashed/Inoperable Components (The "Everything is now Crashed" State)
-| Component | Status | Detail |
-| :--- | :--- | :--- |
-| **Locomotion** | **Crashed** | The `diff_drive_controller` is failing to activate or communicate, meaning the robot cannot move. |
-| **SLAM / Mapping** | **Crashed** | The SLAM Toolbox node fails to start. |
-| **Map Server** | **Crashed** | The `nav2_map_server` fails to initialize the map, preventing costmap generation. |
-| **Nav2 Navigation** | **Crashed** | The entire Nav2 stack (AMCL, planners, etc.) fails to launch due to missing critical dependencies (map, working locomotion). |
-| **Autonomous Logic** | **Crashed** | The custom detection (`target_finder.py`) and collection (`pos_commander.py`) nodes fail without a running Nav2 stack or functional topics. |
-
----
-
-## 🛠️ Launch Commands and Troubleshooting
-
-### Launch Status
 Currently, only the base spawn and scoop functionality are verifiable using the integrated launch file.
-
-| Mode | Command | Status |
-| :--- | :--- | :--- |
-| **Full Integrated Sim** | `ros2 launch autonomous_sphere_collector_pkg gazebo_assessment.launch.py` | **Partial Success.** Robot spawns, scoop works, all other advanced functions fail. |
-| **Autonomous Collector** | `ros2 launch autonomous_sphere_collector_pkg collect_balls.launch.py` | **Crashed.** Dependent on Nav2/Locomotion. |
-
-
-### Key Troubleshooting Solutions (Applied, but insufficient to fix the current crash state)
+Mode	Command	Status
+Full Integrated Sim	ros2 launch autonomous_sphere_collector_pkg gazebo_assessment.launch.py	Partial Success. Robot spawns, scoop works, all other advanced functions fail.
+Autonomous Collector	ros2 launch autonomous_sphere_collector_pkg collect_balls.launch.py	Crashed. Dependent on Nav2/Locomotion.
+Key Troubleshooting Solutions (Applied, but insufficient to fix the current crash state)
 
 We resolved several lower-level issues, but the core locomotion/Nav2 crash remains the fatal problem:
 
-1.  **Map Server Failure Fix:**
-    * **Error:** `Unknown topic '/map'` (indicating `map_server` crashed).
-    * **Solution:** Added the map file installation rule to `CMakeLists.txt` to ensure map files were available in the `install/` directory at runtime. 
+    Map Server Failure Fix:
 
-2.  **Controller Tolerance Violation Fix (Scoop):**
-    * **Genuine Error:** The `joint_trajectory_controller` reported a `Position Error: -0.104470, Position Tolerance: 0.100000`, causing the scoop to enter a holding mode.
-    * **Solution:** Increased the `position` tolerance parameter in `ros_controllers.yaml` for the `scoop_controller` to `0.15` to accommodate simulation drift.
+        Genuine Error: The map_server node failed to start because the necessary map files were not being copied to the correct runtime directory (install/).
+
+        Solution: An installation rule was added to the package's CMakeLists.txt to ensure the config/map directory was installed.
+
+    Controller Tolerance Violation Fix (Scoop):
+
+        Genuine Error: The joint_trajectory_controller reported a Position Error: -0.104470, Position Tolerance: 0.100000, causing the scoop to enter a holding mode.
+
+        Solution: The controller's configuration file was modified to increase the allowable position error tolerance for the scoop joint to accommodate minor simulation drift.
+
+    File: config/ros_controllers.yaml (Excerpt)
+    YAML
+
+scoop_controller:
+  # ... other settings
+  state_tolerances:
+    position: 0.15  # Increased from 0.10 to resolve the error
+    # ...
+
+Launch File Dependency Cleanup:
+
+    Error: Launch failed due to missing package lookups (gazebo_models, nav2_map_server).
+
+    Solution: Explicit dependencies were installed, and unnecessary/outdated variable lookups were removed from the launch file
+
