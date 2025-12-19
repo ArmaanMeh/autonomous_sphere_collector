@@ -35,6 +35,9 @@ data_files = [
     # 6. Include RViz configuration files
     (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
     (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
+    (os.path.join('share', package_name,  'map'), glob('map/*.yaml')),
+    (os.path.join('share', package_name,  'map'), glob('map/*.pgm')),
+    
 ]
 
 setup(
@@ -54,6 +57,8 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [],
+        'console_scripts': [
+            'bot_teleop = autonomous_sphere_collector_pkg.teleop.bot_teleop:main',
+        ],
     },
 )
