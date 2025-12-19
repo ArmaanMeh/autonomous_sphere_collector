@@ -40,43 +40,53 @@ sudo apt update && sudo apt install locales
 sudo locale-gen en_US en_US.UTF-8
 sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 export LANG=en_US.UTF-8
-
+```
+```
 # 2. Add ROS 2 repository
 sudo apt install software-properties-common
 sudo add-apt-repository universe
 sudo apt update && sudo apt install curl
 sudo curl -sSL [https://raw.githubusercontent.com/ros/rosdistro/master/ros.key](https://raw.githubusercontent.com/ros/rosdistro/master/ros.key) -o /usr/share/keyrings/ros-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] [http://packages.ros.org/ros2/ubuntu](http://packages.ros.org/ros2/ubuntu) $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
+```
 # 3. Install ROS 2 Jazzy (Desktop recommended)
+```
 sudo apt update
 sudo apt install ros-jazzy-desktop
+```
 
 # 4. Install Gazebo Harmonic (via ros-gz)
+```
 sudo apt install ros-jazzy-ros-gz-sim
-
+```
 # 5. Install Nav2 and other dependencies (Crucial for launch files)
+```
 sudo apt install ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-slam-toolbox
+```
 
 2. Project Clone, Build, and Source
 Bash
 
 # Create and navigate to the workspace source directory
+```
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
-
+```
 # Clone the autonomous_sphere_collector_pkg repository
 git clone [https://github.com/ArmaanMeh/autonomous_sphere_collector.git](https://github.com/ArmaanMeh/autonomous_sphere_collector.git) autonomous_sphere_collector_pkg
 
 # Navigate back to the root of the workspace
+```
 cd ~/ros2_ws
-
+```
 # Build the specific package
+```
 colcon build --packages-select autonomous_sphere_collector_pkg
-
+```
 # Source the workspace setup file (required for every new terminal session)
+```
 source install/setup.bash
-
+```
 💡 Project Approach and Architecture
 
 Our approach focused on creating a robust, modular pipeline to tackle the core challenge: collecting small, movable objects using limited sensing.
