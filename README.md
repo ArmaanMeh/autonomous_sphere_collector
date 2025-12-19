@@ -5,7 +5,7 @@
 | Item | Status | Link |
 | :--- | :--- | :--- |
 | **GitHub Repository** | Required | [https://github.com/ArmaanMeh/autonomous_sphere_collector.git] |
-| **Video Demonstration** | Required | [Link to 5-minute Video Demo] |
+| **Video Demonstration** | Required | [https://youtu.be/J2sMdY9UO-w] |
 
 ---
 
