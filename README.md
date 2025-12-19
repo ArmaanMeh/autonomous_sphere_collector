@@ -87,6 +87,18 @@ colcon build --packages-select autonomous_sphere_collector_pkg
 ```
 source install/setup.bash
 ```
+
+Full Integrated Sim
+```
+ros2 launch autonomous_sphere_collector_pkg gazebo_assessment.launch.py
+```
+Partial Success. Robot spawns, scoop works, all other advanced functions fail.
+
+Teleoperation Node	
+```python3 src/autonomous_sphere_collector_pkg/autonomous_sphere_collector_pkg/teleop/bot_teleop.py	
+```   Functional. Launches the manual control script.
+
+Autonomous Collector	ros2 launch autonomous_sphere_collector_pkg collect_balls.launch.py	Crashed. Dependent on Nav2/Locomotion.
 💡 Project Approach and Architecture
 
 Our approach focused on creating a robust, modular pipeline to tackle the core challenge: collecting small, movable objects using limited sensing.
