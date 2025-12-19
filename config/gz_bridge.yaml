@@ -14,7 +14,7 @@
 - # --- 2. Joint States (Reading Joint Angles from Gazebo) ---
   # Allows the joint_state_broadcaster to publish state data
   ros_topic_name: "joint_states"
-  gz_topic_name: "model/autonomous_sphere_collector/joint_states" # Use the model-specific joint states
+  gz_topic_name: "joint_states" 
   ros_type_name: "sensor_msgs/msg/JointState"
   gz_type_name: "gz.msgs.Model"
   direction: "GZ_TO_ROS"
@@ -22,9 +22,6 @@
 - # --- 3. Base Mobility Command (Driving the Wheels) ---
   # Allows ROS commands (like teleop) to move the robot in Gazebo
   ros_topic_name: "cmd_vel"
-  # NOTE: The DiffDrive controller outputs to the model's command topic, 
-  # which then often needs to be bridged to Gazebo's general command.
-  # We use the standard Gazebo /cmd_vel topic which the diff drive plugin is listening on.
   gz_topic_name: "cmd_vel"
   ros_type_name: "geometry_msgs/msg/Twist"
   gz_type_name: "gz.msgs.Twist"
