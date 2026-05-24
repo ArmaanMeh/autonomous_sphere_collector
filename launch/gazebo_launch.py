@@ -1,109 +1,126 @@
-## autonomous_sphere_collector_pkg/launch/gazebo.launch.py
-
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import Command, PathJoinSubstitution, LaunchConfiguration
+from launch.substitutions import Command, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.parameter_descriptions import ParameterValue
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    # --- 1. Package and File Paths ---
+    # --- 1. Package Shared Tracking Definitions ---
     pkg_share = FindPackageShare('autonomous_sphere_collector_pkg')
+    world_pkg_share = FindPackageShare('assessment_world')
 
-    urdf_file = os.path.join(
+    # Path to your main modular configuration layout description
+    xacro_file = os.path.join(
         get_package_share_directory('autonomous_sphere_collector_pkg'),
         'urdf',
-        'Robot.urdf'
+        'autonomous_sphere_collector.urdf.xacro'
     )
 
-    world_file = PathJoinSubstitution([
-        FindPackageShare('assessment_world'),
-        'worlds',
-        'assessment.sdf'
-    ])
-
-    controllers_file = PathJoinSubstitution([
-        pkg_share,
+    # Path to your custom active ROS-GZ topic communication map
+    bridge_config_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector_pkg'),
         'config',
-        'ros_controllers.yaml'
-    ])
+        'gz_bridge.yaml'
+    )
 
-    # --- 2. ROS Nodes and Actions ---
-    print("Resolved URDF path:", urdf_file)
-    # 🤖 Robot State Publisher
+    # Path to your pre-saved system display configurations
+
+    rviz_config_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector_pkg'),
+        'rviz',
+        'auto.rviz' 
+    )
+
+    # --- 2. External World Dependencies Actions ---
+    
+    # 🌍 Include environment world layout structure from assessment_world package
+    assessment_world_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([world_pkg_share, 'launch', 'assessment_world.launch.py'])
+        ])
+    )
+    
+    # 🔴 Include the targeted collection sphere engine script execution block
+    spawn_spheres_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([world_pkg_share, 'launch', 'spawn_spheres.launch.py'])
+        ])
+    )
+    
+    # Delay sphere production execution layers to ensure physics server engine initialization completes
+    delayed_sphere_spawn = TimerAction(
+        period=5.0,
+        actions=[spawn_spheres_launch]
+    )
+
+    # --- 3. Core Package System Node Executions ---
+    
+    # 🤖 Robot State Publisher Node execution block (Transforms xacro tree nodes dynamically)
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': open(urdf_file).read()
+            'robot_description': Command(['xacro ', xacro_file])
         }]
     )
 
-    # 🌍 Gazebo Simulator
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                FindPackageShare('ros_gz_sim'),
-                'launch',
-                'gz_sim.launch.py'
-            ])
-        ]),
-        launch_arguments={'world': world_file}.items()
-    )
-
-    # 🤖 Spawn Entity
-    spawn_entity = Node(
+    # 🤖 Spawn Entity Creation Node (Drops the robot into the Gazebo Sim interface)
+    spawn_robot_entity = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
             '-topic', 'robot_description',
-            '-name', 'autonomous_sphere_collector'
+            '-name', 'autonomous_sphere_collector',
+            '-z', '0.2' # Minor elevation clearing buffer drops nicely over target surface planes
         ],
         output='screen'
     )
+    
+    # Delay entity spawning by 2 seconds to safeguard tracking structures against empty environment drops
+    delayed_robot_spawn = TimerAction(
+        period=2.0,
+        actions=[spawn_robot_entity]
+    )
 
-    # 🎮 Controller Manager
-    controller_manager = Node(
-        package='controller_manager',
-        executable='ros2_control_node',
-        parameters=[controllers_file],
+    # 🎛️ ROS-GZ Communication Parameter Bridge Node mapping tracking layer
+    ros_gz_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        output='screen',
+        parameters=[{
+            'config_file': bridge_config_file
+        }]
+    )
+
+  # 📊 RViz2 Display Node (Launches a clean, default instance without loading a file)
+    rviz2_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config_file]
+    )
+
+    # ⌨️ Interactive Teleop Keyboard Controller Node
+    teleop_node = Node(
+        package='autonomous_sphere_collector_pkg',
+        executable='teleop_node.py',
+        name='sphere_collector_teleop',
+        prefix='xterm -e', # Forces a separate popup window to accept keyboard presses cleanly
         output='screen'
     )
 
-    # 🚀 Spawners
-    joint_state_broadcaster_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
-        output='screen'
-    )
-
-    diff_drive_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['diff_drive_controller', '--controller-manager', '/controller_manager'],
-        output='screen'
-    )
-
-    scoop_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['scoop_controller', '--controller-manager', '/controller_manager'],
-        output='screen'
-    )
-
-    # --- 3. Launch Description Return ---
+    # --- 4. Launch Pipeline Deployment Execution Return Array ---
     return LaunchDescription([
-        gazebo,
+        assessment_world_launch,
+        delayed_sphere_spawn,
         robot_state_publisher,
-        spawn_entity,
-        controller_manager,
-        joint_state_broadcaster_spawner,
-        diff_drive_spawner,
-        scoop_controller_spawner
+        delayed_robot_spawn,
+        ros_gz_bridge,
+        rviz2_node,
+        teleop_node
     ])
