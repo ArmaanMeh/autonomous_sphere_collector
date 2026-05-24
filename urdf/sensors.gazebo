@@ -2,8 +2,48 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
     
     <gazebo>
-        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
-            <parameters>$(find autonomous_sphere_collector_pkg)/config/ros_controllers.yaml</parameters>
+        <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+            <left_joint>front_left_wheel_joint</left_joint>
+            <left_joint>rear_left_wheel_joint</left_joint>
+            
+            <right_joint>front_right_wheel_joint</right_joint>
+            <right_joint>rear_right_wheel_joint</right_joint>
+            
+            <wheel_separation>0.47</wheel_separation> 
+            <wheel_radius>0.1</wheel_radius>
+            
+            <max_linear_acceleration>5.0</max_linear_acceleration>
+            <max_angular_acceleration>5.0</max_angular_acceleration>
+            
+            <topic>cmd_vel</topic>
+            <odom_topic>odom</odom_topic>
+            <tf_topic>tf</tf_topic>
+            <frame_id>odom</frame_id>
+            <child_frame_id>base_footprint</child_frame_id>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+            <topic>joint_states</topic>
+            <joint_name>front_left_wheel_joint</joint_name>
+            <joint_name>front_right_wheel_joint</joint_name>
+            <joint_name>rear_left_wheel_joint</joint_name>
+            <joint_name>rear_right_wheel_joint</joint_name>
+            <joint_name>scoop_pivot_joint</joint_name>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+            <joint_name>scoop_pivot_joint</joint_name>
+            <topic>scoop_cmd_pos</topic> <p_gain>100.0</p_gain>
+            <i_gain>0.1</i_gain>
+            <d_gain>1.0</d_gain>
+            <i_max>1.0</i_max>
+            <i_min>-1.0</i_min>
+            <cmd_max>20.0</cmd_max>
+            <cmd_min>-20.0</cmd_min>
         </plugin>
     </gazebo>
 
@@ -21,7 +61,7 @@
     <gazebo reference="scan_link">
         <sensor name="gpu_lidar" type="gpu_lidar">
             <update_rate>5</update_rate>
-            <topic>/scan</topic>
+            <topic>scan</topic>
             <gz_frame_id>scan_link</gz_frame_id>
             <lidar>
                 <scan>
@@ -42,7 +82,7 @@
                     <mean>0.0</mean>
                     <stddev>0.01</stddev>
                 </noise>
-                    <frame_id>scan_link</frame_id>
+                <frame_id>scan_link</frame_id>
             </lidar>
             <always_on>1</always_on>
             <visualize>true</visualize>
@@ -50,9 +90,9 @@
     </gazebo>
 
     <gazebo reference="camera_link">
-        <sensor name="rgbd_camera" type="depth_camera">
-            <update_rate>15.0</update_rate>
+        <sensor name="rgbd_camera" type="rgbd_camera"> <update_rate>15.0</update_rate>
             <visualize>true</visualize>
+            <topic>camera</topic>
             <camera>
                 <horizontal_fov>1.047</horizontal_fov> 
                 <image>
@@ -65,17 +105,6 @@
                     <far>10.0</far>
                 </clip>
             </camera>
-            <depth_camera>
-                <image>
-                    <width>640</width>
-                    <height>480</height>
-                    <format>L16</format>
-                </image>
-                <clip>
-                    <near>0.1</near>
-                    <far>10.0</far>
-                </clip>
-            </depth_camera>
         </sensor>
     </gazebo>
 </robot>
