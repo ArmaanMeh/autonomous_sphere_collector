@@ -7,20 +7,14 @@
   <maintainer email="armaan@example.com">Armaan</maintainer>
   <license>Apache-2.0</license>
 
-  <!-- Build tools -->
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <!-- Build dependencies -->
   <build_depend>xacro</build_depend>
-  <build_depend>ros2_control</build_depend>
-  <build_depend>control_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>rclcpp</build_depend>
   <build_depend>rclcpp_action</build_depend>
   <build_depend>std_msgs</build_depend>
 
-  <!-- Runtime dependencies -->
-  
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>launch_ros</exec_depend>
@@ -32,17 +26,16 @@
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>xacro</exec_depend>
+  <exec_depend>assessment_world</exec_depend>
 
-  <!-- Testing -->
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
-  <!-- Export -->
   <export>
     <build_type>ament_cmake</build_type>
     <depend>ros_gz_sim</depend>
     <depend>robot_state_publisher</depend>
     <depend>xacro</depend>
-    <depend>ros2_control</depend>
+    <depend>assessment_world</depend>
   </export>
 </package>
