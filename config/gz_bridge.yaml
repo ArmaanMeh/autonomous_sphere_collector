@@ -32,10 +32,10 @@
   direction: "GZ_TO_ROS"
 
 # --- 5. Scoop Pivot Position Controller Command ---
-# Instead of a trajectory stack, you can now publish direct position values (radians)
-# to this topic from your custom nodes or teleop scripts!
-- ros_topic_name: "scoop_position_cmd"
-  gz_topic_name: "/model/autonomous_sphere_collector/joint/scoop_pivot_joint/cmd_pos"
+# Updated to match the relative topic namespace 'scoop_cmd_pos' 
+# defined in your teleop script and Gazebo JointPositionController URDF plugin.
+- ros_topic_name: "scoop_cmd_pos"
+  gz_topic_name: "scoop_cmd_pos"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: "ROS_TO_GZ"
