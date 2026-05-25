@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <robot name="autonomous_sphere_collector" xmlns:xacro="https://ros.org/wiki/xacro">
     
-    <xacro:include filename="$(find autonomous_sphere_collector_pkg)/urdf/sensors.gazebo"/>
-    <xacro:include filename="$(find autonomous_sphere_collector_pkg)/urdf/materials.xacro"/>
-    <xacro:include filename="$(find autonomous_sphere_collector_pkg)/urdf/scoop_mechanism.xacro"/>
+    <xacro:include filename="$(find autonomous_sphere_collector)/urdf/sensors.gazebo"/>
+    <xacro:include filename="$(find autonomous_sphere_collector)/urdf/materials.xacro"/>
+    <xacro:include filename="$(find autonomous_sphere_collector)/urdf/scoop_mechanism.xacro"/>
 
     <link name="base_footprint"/>
 
