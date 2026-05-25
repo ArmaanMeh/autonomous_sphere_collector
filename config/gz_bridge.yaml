@@ -32,8 +32,6 @@
   direction: "GZ_TO_ROS"
 
 # --- 5. Scoop Pivot Position Controller Command ---
-# Updated to match the relative topic namespace 'scoop_cmd_pos' 
-# defined in your teleop script and Gazebo JointPositionController URDF plugin.
 - ros_topic_name: "scoop_cmd_pos"
   gz_topic_name: "scoop_cmd_pos"
   ros_type_name: "std_msgs/msg/Float64"
@@ -52,4 +50,32 @@
   gz_topic_name: "imu"
   ros_type_name: "sensor_msgs/msg/Imu"
   gz_type_name: "gz.msgs.IMU"
+  direction: "GZ_TO_ROS"
+
+# 🟢 --- 8. RGBD Camera: Raw Color Image Feed ---
+- ros_topic_name: "camera/image_raw"
+  gz_topic_name: "camera"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: "GZ_TO_ROS"
+
+# 🟢 --- 9. RGBD Camera: Lens Matrix Info Calibration Profile ---
+- ros_topic_name: "camera/camera_info"
+  gz_topic_name: "camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: "GZ_TO_ROS"
+
+# 🟢 --- 10. RGBD Camera: Depth Matrix Array Visual Feed ---
+- ros_topic_name: "camera/depth_image"
+  gz_topic_name: "camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: "GZ_TO_ROS"
+
+# 🟢 --- 11. RGBD Camera: 3D Point Cloud Voxel Projection ---
+- ros_topic_name: "camera/points"
+  gz_topic_name: "camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloud2"
   direction: "GZ_TO_ROS"

@@ -20,6 +20,9 @@
             <tf_topic>tf</tf_topic>
             <frame_id>odom</frame_id>
             <child_frame_id>base_footprint</child_frame_id>
+
+            <calculate_joint_turns>true</calculate_joint_turns>
+            <num_wheel_pairs>2</num_wheel_pairs>
         </plugin>
     </gazebo>
 
@@ -37,7 +40,8 @@
     <gazebo>
         <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
             <joint_name>scoop_pivot_joint</joint_name>
-            <topic>scoop_cmd_pos</topic> <p_gain>100.0</p_gain>
+            <topic>scoop_cmd_pos</topic> 
+            <p_gain>100.0</p_gain>
             <i_gain>0.1</i_gain>
             <d_gain>1.0</d_gain>
             <i_max>1.0</i_max>
@@ -90,9 +94,11 @@
     </gazebo>
 
     <gazebo reference="camera_link">
-        <sensor name="rgbd_camera" type="rgbd_camera"> <update_rate>15.0</update_rate>
+        <sensor name="rgbd_camera" type="rgbd_camera"> 
+            <update_rate>15.0</update_rate>
             <visualize>true</visualize>
             <topic>camera</topic>
+            <gz_frame_id>camera_link</gz_frame_id>
             <camera>
                 <horizontal_fov>1.047</horizontal_fov> 
                 <image>
