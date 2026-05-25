@@ -9,27 +9,26 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # --- 1. Package Shared Tracking Definitions ---
-    pkg_share = FindPackageShare('autonomous_sphere_collector_pkg')
+    pkg_share = FindPackageShare('autonomous_sphere_collector')
     world_pkg_share = FindPackageShare('assessment_world')
 
     # Path to your main modular configuration layout description
     xacro_file = os.path.join(
-        get_package_share_directory('autonomous_sphere_collector_pkg'),
+        get_package_share_directory('autonomous_sphere_collector'),
         'urdf',
         'autonomous_sphere_collector.urdf.xacro'
     )
 
     # Path to your custom active ROS-GZ topic communication map
     bridge_config_file = os.path.join(
-        get_package_share_directory('autonomous_sphere_collector_pkg'),
+        get_package_share_directory('autonomous_sphere_collector'),
         'config',
         'gz_bridge.yaml'
     )
 
     # Path to your pre-saved system display configurations
-
     rviz_config_file = os.path.join(
-        get_package_share_directory('autonomous_sphere_collector_pkg'),
+        get_package_share_directory('autonomous_sphere_collector'),
         'rviz',
         'auto.rviz' 
     )
@@ -64,25 +63,29 @@ def generate_launch_description():
         executable='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': Command(['xacro ', xacro_file])
+            'robot_description': Command([f'xacro {xacro_file}']),
+            'use_sim_time': True
         }]
     )
 
     # 🤖 Spawn Entity Creation Node (Drops the robot into the Gazebo Sim interface)
+    # Target 'assessment_world' explicitly so it maps cleanly to the GUI container
     spawn_robot_entity = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
+            '-world', 'assessment_world',
             '-topic', 'robot_description',
             '-name', 'autonomous_sphere_collector',
-            '-z', '0.2' # Minor elevation clearing buffer drops nicely over target surface planes
+            '-z', '0.5' 
         ],
         output='screen'
     )
     
-    # Delay entity spawning by 2 seconds to safeguard tracking structures against empty environment drops
+    # ⏳ ROBUST FIX: Using an extended TimerAction ensures the world layout has 
+    # fully settled into your system's GPU/Memory maps before injecting the bot.
     delayed_robot_spawn = TimerAction(
-        period=2.0,
+        period=5.0,
         actions=[spawn_robot_entity]
     )
 
@@ -96,7 +99,7 @@ def generate_launch_description():
         }]
     )
 
-  # 📊 RViz2 Display Node (Launches a clean, default instance without loading a file)
+    # 📊 RViz2 Display Node 
     rviz2_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -107,10 +110,10 @@ def generate_launch_description():
 
     # ⌨️ Interactive Teleop Keyboard Controller Node
     teleop_node = Node(
-        package='autonomous_sphere_collector_pkg',
-        executable='teleop_node.py',
+        package='autonomous_sphere_collector',
+        executable='bot_teleop', 
         name='sphere_collector_teleop',
-        prefix='xterm -e', # Forces a separate popup window to accept keyboard presses cleanly
+        prefix='xterm -e', 
         output='screen'
     )
 
@@ -119,7 +122,7 @@ def generate_launch_description():
         assessment_world_launch,
         delayed_sphere_spawn,
         robot_state_publisher,
-        delayed_robot_spawn,
+        delayed_robot_spawn, # Swapped back to a safer, extended standard delay pipeline
         ros_gz_bridge,
         rviz2_node,
         teleop_node
