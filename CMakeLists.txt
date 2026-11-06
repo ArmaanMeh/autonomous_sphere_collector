@@ -28,7 +28,6 @@ install(
     config 
     launch 
     rviz 
-    map 
     urdf 
   DESTINATION share/${PROJECT_NAME}
 )
