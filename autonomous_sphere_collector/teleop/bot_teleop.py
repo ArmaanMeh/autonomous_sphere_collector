@@ -3,6 +3,7 @@ import sys
 import termios
 import tty
 import select
+import time
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -11,6 +12,7 @@ from std_msgs.msg import Float64
 # --- Configuration Constants ---
 CMD_VEL_TOPIC = 'cmd_vel'
 SCOOP_CMD_TOPIC = 'scoop_cmd_pos' # Matches the bridge and Gazebo plugin topic
+MOVEMENT_TIMEOUT = 0.6
 
 # Target positions (in radians)
 SCOOP_POSITIONS = {
@@ -75,8 +77,8 @@ class TeleopNode(Node):
         # 2. Scoop Position Publisher (Simple Float64 for Gazebo Control)
         self.scoop_pub = self.create_publisher(Float64, SCOOP_CMD_TOPIC, 10)
 
-        self.speed = 0.5  
-        self.turn = 1.0   
+        self.speed = 0.125
+        self.turn = 0.25
         self.x = 0.0      
         self.th = 0.0     
 
@@ -104,12 +106,15 @@ def main(args=None):
     print(vels(node.speed, node.turn))
     
     try:
+        last_movement_key_time = None
         while True:
             key = getKey(settings)
+            now = time.monotonic()
             
             if key in moveBindings.keys():
                 node.x = moveBindings[key][0]
                 node.th = moveBindings[key][1]
+                last_movement_key_time = now
                 
             elif key in speedBindings.keys():
                 node.speed *= speedBindings[key][0]
@@ -119,6 +124,7 @@ def main(args=None):
             elif key == 's':
                 node.x = 0.0
                 node.th = 0.0
+                last_movement_key_time = None
                 sys.stdout.write("\rSTOPPING                 \n")
                 sys.stdout.flush()
 
@@ -128,6 +134,13 @@ def main(args=None):
 
             elif key == '\x03': 
                 break
+
+            # Terminal input has no key-up event; stop when held-key repeats cease.
+            if (last_movement_key_time is not None
+                    and now - last_movement_key_time >= MOVEMENT_TIMEOUT):
+                node.x = 0.0
+                node.th = 0.0
+                last_movement_key_time = None
                 
             node.publish_twist()
 
