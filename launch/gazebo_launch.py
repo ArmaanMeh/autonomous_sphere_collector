@@ -1,9 +1,10 @@
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import Command, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
@@ -31,6 +32,11 @@ def generate_launch_description():
         get_package_share_directory('autonomous_sphere_collector'),
         'rviz',
         'auto.rviz' 
+    )
+    slam_launch_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector'),
+        'launch',
+        'slam_launch.py'
     )
 
     # --- 2. External World Dependencies Actions ---
@@ -114,6 +120,17 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
+    start_slam = DeclareLaunchArgument(
+        'start_slam',
+        default_value='true',
+        description='Start SLAM Toolbox with the Gazebo simulation',
+    )
+    slam_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(slam_launch_file),
+        launch_arguments={'use_sim_time': 'true'}.items(),
+        condition=IfCondition(LaunchConfiguration('start_slam')),
+    )
+
     # ⌨️ Interactive Teleop Keyboard Controller Node
     teleop_node = Node(
         package='autonomous_sphere_collector',
@@ -130,6 +147,8 @@ def generate_launch_description():
         ros_gz_bridge,
         delayed_robot_state_publisher,
         delayed_robot_spawn,
+        start_slam,
+        slam_launch,
         rviz2_node,
         teleop_node
     ])
