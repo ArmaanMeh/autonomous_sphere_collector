@@ -1,0 +1,141 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1610 >>
+stream
+BT
+/F1 18 Tf
+72 760 Td
+(Lidar Error and Fix Summary) Tj
+ET
+BT
+/F1 11 Tf
+72 730 Td
+() Tj
+ET
+BT
+/F1 11 Tf
+72 712 Td
+(Error:) Tj
+ET
+BT
+/F1 11 Tf
+72 694 Td
+(The robot used a Gazebo Classic style lidar definition with <ray> ... </ray>) Tj
+ET
+BT
+/F1 11 Tf
+72 676 Td
+(inside a Gazebo Harmonic project. This caused the scan sensor to not match) Tj
+ET
+BT
+/F1 11 Tf
+72 658 Td
+(the simulator requirements and the scan data was not behaving as expected.) Tj
+ET
+BT
+/F1 11 Tf
+72 640 Td
+() Tj
+ET
+BT
+/F1 11 Tf
+72 622 Td
+(Symptoms:) Tj
+ET
+BT
+/F1 11 Tf
+72 604 Td
+(- Laser rays were not visualized correctly in Gazebo.) Tj
+ET
+BT
+/F1 11 Tf
+72 586 Td
+(- /scan publication was unreliable or mismatched to the expected Gazebo sensor format.) Tj
+ET
+BT
+/F1 11 Tf
+72 568 Td
+() Tj
+ET
+BT
+/F1 11 Tf
+72 550 Td
+(Solution:) Tj
+ET
+BT
+/F1 11 Tf
+72 532 Td
+(Updated the sensor from type="lidar" with <ray> to type="gpu_lidar" with) Tj
+ET
+BT
+/F1 11 Tf
+72 514 Td
+(<lidar> ... </lidar>, while keeping visualize=true and the ROS bridge mapping) Tj
+ET
+BT
+/F1 11 Tf
+72 496 Td
+(for Gazebo Transport topic scan -> ROS topic /scan as LaserScan.) Tj
+ET
+BT
+/F1 11 Tf
+72 478 Td
+() Tj
+ET
+BT
+/F1 11 Tf
+72 460 Td
+(Verification:) Tj
+ET
+BT
+/F1 11 Tf
+72 442 Td
+(After the fix, the package built successfully and ros2 topic echo --once /scan) Tj
+ET
+BT
+/F1 11 Tf
+72 424 Td
+(returned a valid LaserScan message with populated ranges and frame_id: scan_link.) Tj
+ET
+BT
+/F1 11 Tf
+72 406 Td
+() Tj
+ET
+BT
+/F1 11 Tf
+72 388 Td
+(This confirms the lidar is publishing correctly to ROS and the rays are enabled) Tj
+ET
+BT
+/F1 11 Tf
+72 370 Td
+(for visualization in Gazebo.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001902 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1972
+%%EOF
