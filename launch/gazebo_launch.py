@@ -33,12 +33,6 @@ def generate_launch_description():
         'rviz',
         'auto.rviz' 
     )
-    slam_launch_file = os.path.join(
-        get_package_share_directory('autonomous_sphere_collector'),
-        'launch',
-        'slam_launch.py'
-    )
-
     # --- 2. External World Dependencies Actions ---
     
     # 🌍 Include environment world layout structure from assessment_world package
@@ -126,7 +120,13 @@ def generate_launch_description():
         description='Start SLAM Toolbox with the Gazebo simulation',
     )
     slam_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(slam_launch_file),
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('slam_toolbox'),
+                'launch',
+                'online_async_launch.py',
+            ])
+        ]),
         launch_arguments={'use_sim_time': 'true'}.items(),
         condition=IfCondition(LaunchConfiguration('start_slam')),
     )
