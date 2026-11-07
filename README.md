@@ -94,6 +94,21 @@ ros2 launch autonomous_sphere_collector_pkg gazebo_assessment.launch.py
 ```
 Partial Success. Robot spawns, scoop works, all other advanced functions fail.
 
+### SLAM Mapping
+
+The Gazebo launch starts SLAM Toolbox by default and opens RViz with `/map` and `/scan` displays. Drive the robot around the environment to build the map; the map appears after SLAM receives scans and the required transforms.
+
+```bash
+ros2 launch autonomous_sphere_collector gazebo_launch.py
+```
+
+If starting SLAM separately, disable its automatic startup in the Gazebo launch to avoid running two SLAM nodes:
+
+```bash
+ros2 launch autonomous_sphere_collector gazebo_launch.py start_slam:=false
+ros2 launch autonomous_sphere_collector slam_launch.py
+```
+
 Teleoperation Node	
 ```python3 src/autonomous_sphere_collector_pkg/autonomous_sphere_collector_pkg/teleop/bot_teleop.py	
 ```   Functional. Launches the manual control script.
@@ -185,4 +200,3 @@ Launch File Dependency Cleanup:
     Error: Launch failed due to missing package lookups (gazebo_models, nav2_map_server).
 
     Solution: Explicit dependencies were installed, and unnecessary/outdated variable lookups were removed from the launch file
-
