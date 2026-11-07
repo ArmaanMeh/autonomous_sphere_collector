@@ -56,7 +56,18 @@ def generate_launch_description():
     )
 
     # --- 3. Core Package System Node Executions ---
-    
+
+    # 🎛️ ROS-GZ Communication Parameter Bridge Node mapping tracking layer
+    ros_gz_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        output='screen',
+        parameters=[{
+            'config_file': bridge_config_file,
+            'use_sim_time': True
+        }]
+    )
+
     # 🤖 Robot State Publisher Node execution block (Transforms xacro tree nodes dynamically)
     robot_state_publisher = Node(
         package='robot_state_publisher',
@@ -66,6 +77,10 @@ def generate_launch_description():
             'robot_description': Command([f'xacro {xacro_file}']),
             'use_sim_time': True
         }]
+    )
+    delayed_robot_state_publisher = TimerAction(
+        period=2.0,
+        actions=[robot_state_publisher]
     )
 
     # 🤖 Spawn Entity Creation Node (Drops the robot into the Gazebo Sim interface)
@@ -89,23 +104,14 @@ def generate_launch_description():
         actions=[spawn_robot_entity]
     )
 
-    # 🎛️ ROS-GZ Communication Parameter Bridge Node mapping tracking layer
-    ros_gz_bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        output='screen',
-        parameters=[{
-            'config_file': bridge_config_file
-        }]
-    )
-
     # 📊 RViz2 Display Node 
     rviz2_node = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=['-d', rviz_config_file]
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': True}]
     )
 
     # ⌨️ Interactive Teleop Keyboard Controller Node
@@ -121,9 +127,9 @@ def generate_launch_description():
     return LaunchDescription([
         assessment_world_launch,
         delayed_sphere_spawn,
-        robot_state_publisher,
-        delayed_robot_spawn, # Swapped back to a safer, extended standard delay pipeline
         ros_gz_bridge,
+        delayed_robot_state_publisher,
+        delayed_robot_spawn,
         rviz2_node,
         teleop_node
     ])
