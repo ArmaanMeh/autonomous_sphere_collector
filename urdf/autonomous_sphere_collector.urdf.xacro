@@ -126,13 +126,13 @@
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
         </inertial>
-        <!-- <collision name="collision">
+        <collision name="collision">
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <cylinder radius="0.05" length="0.025"/>
             </geometry>
-        </collision> -->
-        <visual name="scan_link_visual">
+        </collision>
+        <visual name="visual">
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
                 <cylinder radius="0.05" length="0.025"/>
