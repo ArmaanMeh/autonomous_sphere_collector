@@ -96,17 +96,17 @@ Partial Success. Robot spawns, scoop works, all other advanced functions fail.
 
 ### SLAM Mapping
 
-The Gazebo launch starts SLAM Toolbox by default and opens RViz with `/map` and `/scan` displays. Drive the robot around the environment to build the map; the map appears after SLAM receives scans and the required transforms.
+The Gazebo launch includes SLAM Toolbox's `online_async_launch.py` by default, which automatically configures and activates the mapper using its package defaults. It subscribes to `/scan` and publishes `/map`; drive the robot around the environment to build the map after the required transforms are available.
 
 ```bash
 ros2 launch autonomous_sphere_collector gazebo_launch.py
 ```
 
-If starting SLAM separately, disable its automatic startup in the Gazebo launch to avoid running two SLAM nodes:
+To disable SLAM in the Gazebo launch, or to run the package-provided launch separately:
 
 ```bash
 ros2 launch autonomous_sphere_collector gazebo_launch.py start_slam:=false
-ros2 launch autonomous_sphere_collector slam_launch.py
+ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true
 ```
 
 Teleoperation Node	
