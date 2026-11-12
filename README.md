@@ -96,7 +96,7 @@ Partial Success. Robot spawns, scoop works, all other advanced functions fail.
 
 ### SLAM Mapping
 
-The Gazebo launch includes SLAM Toolbox's `online_async_launch.py` by default, which automatically configures and activates the mapper using its package defaults. It subscribes to `/scan` and publishes `/map`; drive the robot around the environment to build the map after the required transforms are available.
+The Gazebo launch includes SLAM Toolbox's package-provided `online_async_launch.py` by default and passes it this package's [`config/slam_toolbox.yaml`](config/slam_toolbox.yaml). The configuration enables loop closure detection and subscribes to `/scan`; drive the robot around the environment to build and refine the map after the required transforms are available.
 
 ```bash
 ros2 launch autonomous_sphere_collector gazebo_launch.py
@@ -106,7 +106,7 @@ To disable SLAM in the Gazebo launch, or to run the package-provided launch sepa
 
 ```bash
 ros2 launch autonomous_sphere_collector gazebo_launch.py start_slam:=false
-ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true
+ros2 launch slam_toolbox online_async_launch.py use_sim_time:=true slam_params_file:=$(ros2 pkg prefix autonomous_sphere_collector)/share/autonomous_sphere_collector/config/slam_toolbox.yaml
 ```
 
 Teleoperation Node	
