@@ -127,7 +127,14 @@ def generate_launch_description():
                 'online_async_launch.py',
             ])
         ]),
-        launch_arguments={'use_sim_time': 'true'}.items(),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'slam_params_file': PathJoinSubstitution([
+                pkg_share,
+                'config',
+                'slam_toolbox.yaml',
+            ]),
+        }.items(),
         condition=IfCondition(LaunchConfiguration('start_slam')),
     )
 
