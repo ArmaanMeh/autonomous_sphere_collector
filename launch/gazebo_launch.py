@@ -1,16 +1,14 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
-from launch.conditions import IfCondition
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # --- 1. Package Shared Tracking Definitions ---
-    pkg_share = FindPackageShare('autonomous_sphere_collector')
     world_pkg_share = FindPackageShare('assessment_world')
 
     # Path to your main modular configuration layout description
@@ -25,6 +23,17 @@ def generate_launch_description():
         get_package_share_directory('autonomous_sphere_collector'),
         'config',
         'gz_bridge.yaml'
+    )
+
+    nav2_params_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector'),
+        'config',
+        'nav2_params.yaml'
+    )
+    map_file = os.path.join(
+        get_package_share_directory('autonomous_sphere_collector'),
+        'maps',
+        'my_map.yaml'
     )
 
     # Path to your pre-saved system display configurations
@@ -114,28 +123,29 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
-    start_slam = DeclareLaunchArgument(
-        'start_slam',
-        default_value='true',
-        description='Start SLAM Toolbox with the Gazebo simulation',
-    )
-    slam_launch = IncludeLaunchDescription(
+    # SLAM Toolbox is intentionally disabled; Nav2 uses AMCL with the saved map.
+
+    nav2_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
-                FindPackageShare('slam_toolbox'),
+                FindPackageShare('nav2_bringup'),
                 'launch',
-                'online_async_launch.py',
+                'bringup_launch.py',
             ])
         ]),
         launch_arguments={
             'use_sim_time': 'true',
-            'slam_params_file': PathJoinSubstitution([
-                pkg_share,
-                'config',
-                'slam_toolbox.yaml',
-            ]),
+            'slam': 'False',
+            'use_localization': 'True',
+            'map': map_file,
+            'params_file': nav2_params_file,
+            'autostart': 'true',
+            'use_composition': 'False',
         }.items(),
-        condition=IfCondition(LaunchConfiguration('start_slam')),
+    )
+    delayed_nav2_bringup = TimerAction(
+        period=8.0,
+        actions=[nav2_bringup]
     )
 
     # ⌨️ Interactive Teleop Keyboard Controller Node
@@ -154,8 +164,7 @@ def generate_launch_description():
         ros_gz_bridge,
         delayed_robot_state_publisher,
         delayed_robot_spawn,
-        start_slam,
-        slam_launch,
+        delayed_nav2_bringup,
         rviz2_node,
         teleop_node
     ])
