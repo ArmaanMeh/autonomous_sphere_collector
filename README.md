@@ -102,6 +102,21 @@ The Gazebo launch includes SLAM Toolbox's package-provided `online_async_launch.
 ros2 launch autonomous_sphere_collector gazebo_launch.py
 ```
 
+Only use one `/cmd_vel` publisher at a time. The launch starts keyboard teleop by default; disable it when sending commands from another teleop, Nav2, or a script:
+
+```bash
+ros2 launch autonomous_sphere_collector gazebo_launch.py start_teleop:=false
+```
+
+Press `s` in the keyboard teleop for an immediate stop; releasing a movement key also stops motion when keyboard repeats cease. The teleop sends stop commands repeatedly, including when it exits. SLAM now considers scans at shorter intervals and lower travel thresholds to reduce accumulated mapping drift. Loop closure is enabled, but is only attempted after the robot revisits previously mapped space; drive back through a recognizable area to trigger it. Saving a map does not trigger loop closure. Save the current map from the running SLAM Toolbox node with:
+
+```bash
+mkdir -p "$HOME/maps"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: '$HOME/maps/assessment'}}"
+```
+
+This writes `assessment.pgm` and `assessment.yaml` under `$HOME/maps`.
+
 To disable SLAM in the Gazebo launch, or to run the package-provided launch separately:
 
 ```bash
