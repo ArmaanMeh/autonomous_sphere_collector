@@ -3,9 +3,12 @@
 # Maps ROS 2 topics to Gazebo Transport topics for ROS 2 Jazzy & Gazebo Harmonic
 # =================================================================
 
-# --- 1. Clock is sourced directly by Gazebo / ros_gz_bridge; do not bridge it
-#     twice or robot_state_publisher will see non-monotonic timestamps and spam
-#     'Moved backwards in time' warnings.
+# --- 1. Bridge Gazebo's simulation clock once for nodes using simulation time.
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: "GZ_TO_ROS"
 
 # --- 2. Joint States (Wheel spins and Scoop Position Feedback) ---
 - ros_topic_name: "joint_states"
