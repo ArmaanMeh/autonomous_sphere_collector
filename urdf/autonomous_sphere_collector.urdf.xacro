@@ -82,8 +82,8 @@
     <xacro:wheel prefix="rear_right"   x_reflect="-1" y_reflect="-1" />
 
     <gazebo reference="base_link">
-        <mu1>0.0</mu1>
-        <mu2>0.0</mu2>
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
     </gazebo>
 
     <joint name="imu_joint" type="fixed">
