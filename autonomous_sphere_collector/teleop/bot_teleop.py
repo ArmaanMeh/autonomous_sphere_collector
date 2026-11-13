@@ -13,6 +13,8 @@ from std_msgs.msg import Float64
 CMD_VEL_TOPIC = 'cmd_vel'
 SCOOP_CMD_TOPIC = 'scoop_cmd_pos' # Matches the bridge and Gazebo plugin topic
 MOVEMENT_TIMEOUT = 0.6
+KEY_POLL_INTERVAL = 0.05
+STOP_REPEAT_COUNT = 3
 
 # Target positions (in radians)
 SCOOP_POSITIONS = {
@@ -54,9 +56,9 @@ speedBindings = {
     'z': (0.9, 0.9),  
 }
 
-def getKey(settings):
+def getKey(settings, timeout=KEY_POLL_INTERVAL):
     tty.setraw(sys.stdin.fileno())
-    rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+    rlist, _, _ = select.select([sys.stdin], [], [], timeout)
     if rlist:
         key = sys.stdin.read(1)
     else:
@@ -87,6 +89,14 @@ class TeleopNode(Node):
         twist_msg.linear.x = self.x * self.speed
         twist_msg.angular.z = self.th * self.turn
         self.cmd_vel_pub.publish(twist_msg)
+
+    def stop(self):
+        self.x = 0.0
+        self.th = 0.0
+        stop_msg = Twist()
+        for _ in range(STOP_REPEAT_COUNT):
+            self.cmd_vel_pub.publish(stop_msg)
+            time.sleep(KEY_POLL_INTERVAL)
 
     def publish_scoop_command(self, position):
         """Publishes the target position as a simple Float64 scalar value."""
@@ -122,8 +132,7 @@ def main(args=None):
                 print(vels(node.speed, node.turn))
                     
             elif key == 's':
-                node.x = 0.0
-                node.th = 0.0
+                node.stop()
                 last_movement_key_time = None
                 sys.stdout.write("\rSTOPPING                 \n")
                 sys.stdout.flush()
@@ -149,8 +158,7 @@ def main(args=None):
 
     finally:
         print("\nExiting Teleop. Sending stop command...")
-        stop_msg = Twist()
-        node.cmd_vel_pub.publish(stop_msg)
+        node.stop()
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
         node.destroy_node()
         rclpy.shutdown()
