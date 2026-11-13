@@ -12,8 +12,8 @@
             <wheel_separation>0.47</wheel_separation> 
             <wheel_radius>0.1</wheel_radius>
             
-            <max_linear_acceleration>5.0</max_linear_acceleration>
-            <max_angular_acceleration>5.0</max_angular_acceleration>
+            <max_linear_acceleration>1.0</max_linear_acceleration>
+            <max_angular_acceleration>2.0</max_angular_acceleration>
             
             <topic>cmd_vel</topic>
             <odom_topic>odom</odom_topic>
@@ -75,8 +75,8 @@
                     <horizontal>
                         <samples>720</samples>
                         <resolution>1</resolution>
-                        <min_angle>-1.57</min_angle>
-                        <max_angle>1.57</max_angle>
+                        <min_angle>-3.14</min_angle>
+                        <max_angle>3.14</max_angle>
                     </horizontal>
                 </scan>
                 <range>
