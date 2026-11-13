@@ -27,6 +27,7 @@ install(
   DIRECTORY 
     config 
     launch 
+    maps
     rviz 
     urdf 
   DESTINATION share/${PROJECT_NAME}
